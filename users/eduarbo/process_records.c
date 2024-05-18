@@ -189,18 +189,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         }
 
-        case F13_RGUI:
-        case F13_RCTL: {
+        case F16_RGUI:
+        case F16_RCTL: {
             if (record->tap.count && record->event.pressed) {
                 // on tap
                 if ((mods & SUPER_MOD) == SUPER_MOD) {
-                    if (keycode == F13_RGUI) {
+                    if (keycode == F16_RGUI) {
                         set_oneshot_mods(os_mods | MOD_BIT(KC_RGUI));
-                    } else if (keycode == F13_RCTL) {
+                    } else if (keycode == F16_RCTL) {
                         set_oneshot_mods(os_mods | MOD_BIT(KC_RCTL));
                     }
                 } else {
-                    tap_code16(KC_APP);
+                    tap_code16(KC_F16);
                 }
                 return false;
             } else if (record->event.pressed) {
