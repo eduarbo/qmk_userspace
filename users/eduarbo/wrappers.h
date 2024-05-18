@@ -18,10 +18,10 @@ NOTE: These are all the same length.  If you do a search/replace
 */
 
 #define _____BASE_MAC_MODS_L_____                       ESC_SUPR,     SPC_LSFT,     ENT_RGUI
-#define _____BASE_MAC_MODS_R_____                       ENT_RGUI,     TAB_SYMB,     F13_RCTL
+#define _____BASE_MAC_MODS_R_____                       ENT_RGUI,     TAB_SYMB,     F16_RCTL
 
 #define _______BASE_MODS_L_______                       ESC_SUPR,     SPC_LSFT,     ENT_RCTL
-#define _______BASE_MODS_R_______                       ENT_RCTL,     TAB_SYMB,     F13_RGUI
+#define _______BASE_MODS_R_______                       ENT_RCTL,     TAB_SYMB,     F16_RGUI
 
 #define ______SYMBOLS_MODS_L_____                       _______,      _______,      _______
 #define ______SYMBOLS_MODS_R_____                       _______,      _______,      _______
