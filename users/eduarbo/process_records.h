@@ -27,8 +27,8 @@ enum userspace_custom_keycodes {
 // FIXME Even that I'm re-binding the key on Tap with process_record_user() to
 // an advanced keycode, I use Mod-Tap here because I wasn't able to intercept
 // the key if I used a basic keycode instead
-#define F13_RCTL MT(MOD_RCTL, KC_ESC)
-#define F13_RGUI MT(MOD_RGUI, KC_ESC)
+#define F16_RCTL MT(MOD_RCTL, KC_ESC)
+#define F16_RGUI MT(MOD_RGUI, KC_ESC)
 
 #define OS_RCTL OSM(MOD_RALT)
 #define OS_RGUI OSM(MOD_RGUI)
