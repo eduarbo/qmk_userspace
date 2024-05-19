@@ -33,18 +33,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case ACCENT:
             if (record->event.pressed) {
-                if (get_highest_layer(default_layer_state) == _BASE) {
-                    // Mod-Tap AltGr to simulate common accent behavior and allow typing `ñ` with the same key:
-                    // Type accent key, then the vowel to be accented. If `n` is pressed, returns `ñ`
-                    set_oneshot_mods(os_mods | MOD_BIT(KC_ALGR));
-                    return false;
-                } else if ((mods & MOD_BIT(KC_LSFT)) == MOD_BIT(KC_LSFT)) {
+                if ((mods & MOD_BIT(KC_LSFT)) == MOD_BIT(KC_LSFT)) {
 #ifdef CAPS_WORD_ENABLE
                     caps_word_toggle();
 #else
                     register_code(KC_CAPS);
                     unregister_code(KC_CAPS);
 #endif
+                    return false;
+                } else if (get_highest_layer(default_layer_state) == _BASE) {
+                    // Use AltGr (RALT) to type accents and ñ with the "US Intl. with AltGr dead keys" layout
+                    set_oneshot_mods(os_mods | MOD_BIT(KC_RALT));
                     return false;
                 }
             }
