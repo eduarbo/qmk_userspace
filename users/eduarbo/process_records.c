@@ -17,7 +17,7 @@
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     const uint8_t mods    = get_mods();
     const uint8_t os_mods = get_oneshot_mods();
-    const bool super_mod_active = (mods & SUPER_MOD) == SUPER_MOD;
+    const bool super_mod_active = (mods & SUPER_MOD) == SUPER_MOD && !(mods & MOD_MASK_SHIFT);
 
     switch (keycode) {
         case TG_BASE:
