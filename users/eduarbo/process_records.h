@@ -24,6 +24,22 @@ enum userspace_custom_keycodes {
 #define ENT_RCTL MT(MOD_RCTL, KC_ENT)
 #define ENT_RGUI MT(MOD_RGUI, KC_ENT)
 
+#define DEVTOOLS C(S(KC_I))
+#define INSP_ELE C(S(KC_C))
+#define TGL_EXEC KC_F8
+
+#define MAC_DEVTOOLS G(A(KC_I))
+#define MAC_INSP_ELE G(A(KC_C))
+#define MAC_TGL_EXEC KC_F8
+
+#define PREV_TAB C(S(KC_TAB))
+#define NEXT_TAB C(KC_TAB)
+
+#define GO_BACK  A(KC_LEFT)
+#define GO_FWD   A(KC_RIGHT)
+#define MAC_GO_BACK G(KC_LBRC)
+#define MAC_GO_FWD  G(KC_RBRC)
+
 // FIXME Even that I'm re-binding the key on Tap with process_record_user() to
 // an advanced keycode, I use Mod-Tap here because I wasn't able to intercept
 // the key if I used a basic keycode instead
