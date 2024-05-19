@@ -17,6 +17,7 @@
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     const uint8_t mods    = get_mods();
     const uint8_t os_mods = get_oneshot_mods();
+    const bool super_mod_active = (mods & SUPER_MOD) == SUPER_MOD;
 
     switch (keycode) {
         case TG_BASE:
@@ -126,13 +127,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case TAB_SYMB: {
             if (record->tap.count && record->event.pressed) {
                 // on tap
-                if ((mods & SUPER_MOD) == SUPER_MOD) {
+                if (super_mod_active) {
                     set_oneshot_mods(os_mods | MOD_BIT(KC_RALT));
                     return false;
                 }
             } else if (record->event.pressed) {
                 // on hold keydown
-                if ((mods & SUPER_MOD) == SUPER_MOD) {
+                if (super_mod_active) {
                     register_mods(HYPER_MOD);
                     return false;
                 }
@@ -154,7 +155,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
             if (record->tap.count && record->event.pressed) {
                 // on tap
-                if ((mods & SUPER_MOD) == SUPER_MOD) {
+                if (super_mod_active) {
                     if (keycode == ENT_RCTL) {
                         set_oneshot_mods(os_mods | MOD_BIT(KC_RCTL));
                     } else if (keycode == ENT_RGUI) {
@@ -167,7 +168,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             } else if (record->event.pressed) {
                 // on hold keydown
-                if ((mods & SUPER_MOD) == SUPER_MOD) {
+                if (super_mod_active) {
                     unregister_mods(SUPER_MOD);
                     layer_on(_ADJUST);
                     return false;
@@ -193,7 +194,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case F16_RCTL: {
             if (record->tap.count && record->event.pressed) {
                 // on tap
-                if ((mods & SUPER_MOD) == SUPER_MOD) {
+                if (super_mod_active) {
                     if (keycode == F16_RGUI) {
                         set_oneshot_mods(os_mods | MOD_BIT(KC_RGUI));
                     } else if (keycode == F16_RCTL) {
@@ -205,7 +206,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             } else if (record->event.pressed) {
                 // on hold keydown
-                if ((mods & SUPER_MOD) == SUPER_MOD) {
+                if (super_mod_active) {
                     unregister_mods(SUPER_MOD);
                     layer_on(_FKEYS);
                     return false;
@@ -274,6 +275,99 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         }
 
+        case KC_E:
+            if (super_mod_active) {
+                if (record->event.pressed) {
+                    unregister_mods(SUPER_MOD);
+                    if (get_highest_layer(default_layer_state) == _BASE_MAC) {
+                        tap_code16(MAC_DEVTOOLS);
+                    } else {
+                        tap_code16(DEVTOOLS);
+                    }
+                    register_mods(SUPER_MOD);
+                }
+                return false;
+            }
+            break;
+
+        case KC_R:
+            if (super_mod_active) {
+                if (record->event.pressed) {
+                    unregister_mods(SUPER_MOD);
+                    if (get_highest_layer(default_layer_state) == _BASE_MAC) {
+                        tap_code16(MAC_INSP_ELE);
+                    } else {
+                        tap_code16(INSP_ELE);
+                    }
+                    register_mods(SUPER_MOD);
+                }
+                return false;
+            }
+            break;
+
+        case KC_T:
+            if (super_mod_active) {
+                if (record->event.pressed) {
+                    unregister_mods(SUPER_MOD);
+                    tap_code16(TGL_EXEC);
+                    register_mods(SUPER_MOD);
+                }
+                return false;
+            }
+            break;
+
+        case KC_S:
+            if (super_mod_active) {
+                if (record->event.pressed) {
+                    unregister_mods(SUPER_MOD);
+                    tap_code16(PREV_TAB);
+                    register_mods(SUPER_MOD);
+                }
+                return false;
+            }
+            break;
+
+        case KC_G:
+            if (super_mod_active) {
+                if (record->event.pressed) {
+                    unregister_mods(SUPER_MOD);
+                    tap_code16(NEXT_TAB);
+                    register_mods(SUPER_MOD);
+                }
+                return false;
+            }
+            break;
+
+        case KC_D:
+            if (super_mod_active) {
+                if (record->event.pressed) {
+                    unregister_mods(SUPER_MOD);
+                    if (get_highest_layer(default_layer_state) == _BASE_MAC) {
+                        tap_code16(MAC_GO_BACK);
+                    } else {
+                        tap_code16(GO_BACK);
+                    }
+                    register_mods(SUPER_MOD);
+                }
+                return false;
+            }
+            break;
+
+        case KC_F:
+            if (super_mod_active) {
+                if (record->event.pressed) {
+                    unregister_mods(SUPER_MOD);
+                    if (get_highest_layer(default_layer_state) == _BASE_MAC) {
+                        tap_code16(MAC_GO_FWD);
+                    } else {
+                        tap_code16(GO_FWD);
+                    }
+                    register_mods(SUPER_MOD);
+                }
+                return false;
+            }
+        break;
+
 #if defined(OS_DETECTION_ENABLE) && defined(OS_DETECTION_DEBUG_ENABLE)
         case STORE:
             if (record->event.pressed) {
@@ -286,37 +380,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 #endif
-
-            // Shift + Backspace = Delete, see: https://docs.qmk.fm/#/feature_advanced_keycodes?id=shift-backspace-for-delete
-            /* case KC_BSPC: { */
-            /*     // Initialize a boolean variable that keeps track */
-            /*     // of the delete key status: registered or not? */
-            /*     static bool delkey_registered; */
-            /*     if (record->event.pressed) { */
-            /*         // Detect the activation of either shift keys */
-            /*         if (mods & MOD_MASK_SHIFT) { */
-            /*             // First temporarily canceling both shifts so that */
-            /*             // shift isn't applied to the KC_DEL keycode */
-            /*             unregister_mods(MOD_MASK_SHIFT); */
-            /*             register_code(KC_DEL); */
-            /*             // Update the boolean variable to reflect the status of KC_DEL */
-            /*             delkey_registered = true; */
-            /*             // Reapplying modifier state so that the held shift key(s) */
-            /*             // still work even after having tapped the Backspace/Delete key. */
-            /*             set_mods(mods); */
-            /*             return false; */
-            /*         } */
-            /*     } else { // on release of KC_BSPC */
-            /*         // In case KC_DEL is still being sent even after the release of KC_BSPC */
-            /*         if (delkey_registered) { */
-            /*             unregister_code(KC_DEL); */
-            /*             delkey_registered = false; */
-            /*             return false; */
-            /*         } */
-            /*     } */
-            /*     // Let QMK process the KC_BSPC keycode as usual outside of shift */
-            /*     return true; */
-            /* } */
     }
     return true;
 }
