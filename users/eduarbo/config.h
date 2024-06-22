@@ -76,3 +76,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define ONESHOT_TAP_TOGGLE 2
 #define ONESHOT_TIMEOUT 3000
+
+// OS Detection ----------------------------------------------------------------
+
+// enables the keyboard reset upon a USB device reinitilization, such as switching devices on some KVMs
+#define OS_DETECTION_KEYBOARD_RESET
