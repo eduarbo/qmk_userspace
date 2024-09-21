@@ -26,7 +26,8 @@ enum userspace_custom_keycodes {
 
 #define DEVTOOLS C(S(KC_I))
 #define INSP_ELE C(S(KC_C))
-#define TGL_EXEC KC_F8
+#define MAC_TGL_EXEC G(KC_BSLS)
+#define TGL_EXEC C(KC_BSLS)
 
 #define MAC_DEVTOOLS G(A(KC_I))
 #define MAC_INSP_ELE G(A(KC_C))
