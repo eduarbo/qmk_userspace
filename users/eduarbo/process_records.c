@@ -308,7 +308,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (super_mod_active) {
                 if (record->event.pressed) {
                     unregister_mods(SUPER_MOD);
-                    tap_code16(TGL_EXEC);
+                    if (get_highest_layer(default_layer_state) == _BASE_MAC) {
+                        tap_code16(MAC_TGL_EXEC);
+                    } else {
+                        tap_code16(TGL_EXEC);
+                    }
                     register_mods(SUPER_MOD);
                 }
                 return false;
