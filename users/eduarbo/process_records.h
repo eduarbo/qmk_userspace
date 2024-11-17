@@ -14,7 +14,8 @@ enum userspace_custom_keycodes {
 #define SUPER_MOD (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL))
 #define HYPER_MOD (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT))
 
-#define ACCENT A(KC_E)
+#define TILDE A(KC_E)
+#define VIRGULI A(KC_N)
 
 #define SPC_LSFT MT(MOD_LSFT, KC_SPC)
 #define TAB_SYMB LT(_SYMBOLS, KC_TAB)
