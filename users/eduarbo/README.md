@@ -68,9 +68,9 @@ This layout is built for my main keyboard, a 36-key Piantor, but since I sometim
 
 | Symbol | Description | Symbol | Description | Symbol | Description |
 |--------|-------------|--------|-------------|--------|-------------|
-| `␣`    | Space       | `⌫`    | Backspace   | `⇞`    | Home        |
-| `⇥`    | Tab         | `⌦`    | Delete      | `⇟`    | End         |
-| `⏎`    | Enter       | `▼`    | Page Down   | `⇧´`   | Caps Word   |
+| `␣`    | Space       | `⌫`    | Backspace   | `⇧▲`   | Home        |
+| `⇥`    | Tab         | `⌦`    | Delete      | `⇧▼`   | End         |
+| `⏎`    | Enter       | `▼`    | Page Down   | `CW`   | Caps Word   |
 | `⎋`    | Escape      | `▲`    | Page Up     |        |             |
 
 ### Base
@@ -96,11 +96,11 @@ Left-side numpad, right-side symbols and arrows, with `,`, `.`, and `⌫` retain
 
 ```text
 ╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│ ⇞ │ 7 │ 8 │ 9 │ 0 │       │ \ │ [ │ ] │ / │ ▲ │
+│ ▲ │ 7 │ 8 │ 9 │ 0 │       │ \ │ [ │ ] │ / │ ▼ │
 ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│ ⇟ │ 4 │ 5 │ 6 │ = │       │ ← │ ↓ │ ↑ │ → │ ▼ │
+│ ´ │ 4 │ 5 │ 6 │ = │       │ ← │ ↓ │ ↑ │ → │ ~ │
 ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│ ´ │ 1 │ 2 │ 3 │ - │       │ ` │ ' │   │   │   │
+│CW │ 1 │ 2 │ 3 │ - │       │ ` │ ' │   │   │   │
 ╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
            │⇧+⎋│⇧+␣│⇧+⏎│ │   │▐█▌│   │ ← on tap
            │ ≢ │   │   │ │   │▐█▌│   │ ← on hold
