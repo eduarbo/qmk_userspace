@@ -46,12 +46,12 @@ NOTE: These are all the same length.  If you do a search/replace
 #define _________________QWERTY_R2_________________     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN
 #define _________________QWERTY_R3_________________     KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_BSPC
 
-#define _________________SYMBOLS_L1________________     KC_HOME, KC_7,    KC_8,    KC_9,    KC_0
-#define _________________SYMBOLS_L2________________     KC_END,  KC_4,    KC_5,    KC_6,    KC_EQL
-#define _________________SYMBOLS_L3________________     ACCENT,  KC_1,    KC_2,    KC_3,    KC_MINS
+#define _________________SYMBOLS_L1________________     KC_PGUP, KC_7,    KC_8,    KC_9,    KC_0
+#define _________________SYMBOLS_L2________________     TILDE,   KC_4,    KC_5,    KC_6,    KC_EQL
+#define _________________SYMBOLS_L3________________     CW_TOGG, KC_1,    KC_2,    KC_3,    KC_MINS
 
-#define _________________SYMBOLS_R1________________     KC_BSLS, KC_LBRC, KC_RBRC, KC_SLSH, KC_PGUP
-#define _________________SYMBOLS_R2________________     KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,KC_PGDN
+#define _________________SYMBOLS_R1________________     KC_BSLS, KC_LBRC, KC_RBRC, KC_SLSH, KC_PGDN
+#define _________________SYMBOLS_R2________________     KC_LEFT, KC_DOWN, KC_UP,   KC_RIGHT,VIRGULI
 #define _________________SYMBOLS_R3________________     KC_GRV,  KC_QUOT, _______, _______, _______
 
 #define _________________F_KEYS_L1_________________     KC_F12,  KC_F7,   KC_F8,   KC_F9,   KC_PSCR

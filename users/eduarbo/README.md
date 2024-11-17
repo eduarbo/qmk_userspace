@@ -12,11 +12,11 @@ Before flashing, ensure your keyboard is in bootloader mode and that you have pr
 
 To flash the right split, use the command:
 
-    qmk -kb beekeeb/piantor -km eduarbo -t uf2-split-right
+    qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-right
 
 For the left split, use:
 
-    qmk -kb beekeeb/piantor -km eduarbo -t uf2-split-left
+    qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-left
 
 <!-- ### Corne Keyboard (CRKBD) -->
 

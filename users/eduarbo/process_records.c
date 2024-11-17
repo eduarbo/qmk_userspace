@@ -31,19 +31,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
 
-        case ACCENT:
+        case TILDE:
+        case VIRGULI:
             if (record->event.pressed) {
-                if ((mods & MOD_BIT(KC_LSFT)) == MOD_BIT(KC_LSFT)) {
-#ifdef CAPS_WORD_ENABLE
-                    caps_word_toggle();
-#else
-                    register_code(KC_CAPS);
-                    unregister_code(KC_CAPS);
-#endif
-                    return false;
-                } else if (get_highest_layer(default_layer_state) == _BASE) {
+                if (get_highest_layer(default_layer_state) == _BASE) {
                     // Use AltGr (RALT) to type accents and ñ with the "US Intl. with AltGr dead keys" layout
                     set_oneshot_mods(os_mods | MOD_BIT(KC_RALT));
+                    return false;
+                }
+            }
+            break;
+
+        case KC_PGUP:
+            if (record->event.pressed) {
+                if ((mods & MOD_BIT(KC_LSFT)) == MOD_BIT(KC_LSFT)) {
+                    unregister_code(KC_LSFT);
+                    tap_code(KC_HOME);
+                    register_code(KC_LSFT);
+                    return false;
+                }
+            }
+            break;
+
+        case KC_PGDN:
+            if (record->event.pressed) {
+                if ((mods & MOD_BIT(KC_LSFT)) == MOD_BIT(KC_LSFT)) {
+                    unregister_code(KC_LSFT);
+                    tap_code(KC_END);
+                    register_code(KC_LSFT);
                     return false;
                 }
             }
