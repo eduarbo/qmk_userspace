@@ -32,7 +32,7 @@ NOTE: These are all the same length.  If you do a search/replace
 #define ______ADJUST_MODS_L______                       _______,      _______,      _______
 #define ______ADJUST_MODS_R______                       _______,      _______,      _______
 
-#define ______GAMEPAD_MODS_L_____                       KC_LALT,      KC_SPC,       KC_LCTL
+#define ______GAMEPAD_MODS_L_____                       KC_LALT,      KC_SPC,       KC_ENT
 #define ______GAMEPAD_MODS_R_____                       _______,      _______,      _______
 
 #define ___________________________________________     _______, _______, _______, _______, _______
