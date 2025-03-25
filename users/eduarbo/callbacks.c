@@ -10,10 +10,15 @@ uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
     if (is_keyboard_master()) {
         os_type = detected_host_os();
         switch (os_type) {
+            case OS_UNSURE:
+                set_single_persistent_default_layer(_GAMEPAD);
+                break;
             case OS_IOS:
             case OS_MACOS:
                 set_single_persistent_default_layer(_BASE_MAC);
                 break;
+            case OS_WINDOWS:
+            case OS_LINUX:
             default:
                 set_single_persistent_default_layer(_BASE);
                 break;

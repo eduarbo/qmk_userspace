@@ -67,7 +67,7 @@ NOTE: These are all the same length.  If you do a search/replace
 #define _________________ADJUST_L3_________________     RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD
 
 #define _________________ADJUST_R1_________________     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-#define _________________ADJUST_R2_________________     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+#define _________________ADJUST_R2_________________     XXXXXXX, STORE,   PRINT,   XXXXXXX, XXXXXXX
 #define _________________ADJUST_R3_________________     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 #define _________________GAMEPAD_L1________________     KC_ESC,  KC_W,    KC_UP,   KC_R,    KC_T

@@ -13,7 +13,7 @@ Most of the code resides in my userspace, rather than here, as I have other keyb
 2. Flash both sides using the following command:
 
 ```
-make beekeeb/piantor_pro:eduarbo:flash
+make beekeeb/piantor:eduarbo:flash
 ```
 
 ## Layers (WIP)
