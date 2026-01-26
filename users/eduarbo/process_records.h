@@ -47,9 +47,6 @@ enum userspace_custom_keycodes {
 #define F16_RCTL MT(MOD_RCTL, KC_ESC)
 #define F16_RGUI MT(MOD_RGUI, KC_ESC)
 
-#define OS_RCTL OSM(MOD_RALT)
-#define OS_RGUI OSM(MOD_RGUI)
-
 #define TG_GAME TG(_GAMEPAD)
 
 #define TG_MODS OS_TOGG

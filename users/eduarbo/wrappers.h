@@ -62,9 +62,15 @@ NOTE: These are all the same length.  If you do a search/replace
 #define _________________F_KEYS_R2_________________     KC_VOLD, TG_GAME, TG_BASE, KC_LPAD, KC_SCRL
 #define _________________F_KEYS_R3_________________     KC_MUTE, KC_BRID, KC_BRIU, KC_MCTL, KC_PAUS
 
+#if defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
 #define _________________ADJUST_L1_________________     RGB_TOG, DB_TOGG, QK_RBT,  EE_CLR,  QK_BOOT
 #define _________________ADJUST_L2_________________     RGB_RMOD,RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI
 #define _________________ADJUST_L3_________________     RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD
+#else
+#define _________________ADJUST_L1_________________     XXXXXXX, DB_TOGG, QK_RBT,  EE_CLR,  QK_BOOT
+#define _________________ADJUST_L2_________________     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
+#define _________________ADJUST_L3_________________     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
+#endif
 
 #define _________________ADJUST_R1_________________     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 #define _________________ADJUST_R2_________________     XXXXXXX, STORE,   PRINT,   XXXXXXX, XXXXXXX
