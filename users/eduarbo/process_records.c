@@ -112,7 +112,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     return false;
                 }
             } else {
-                // oh hold keyup
+                // on hold keyup
                 if ((mods & HYPER_MOD) == HYPER_MOD) {
                     unregister_mods(HYPER_MOD);
                     layer_on(_SYMBOLS);
@@ -152,7 +152,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     return false;
                 }
             } else {
-                // oh hold keyup
+                // on hold keyup
                 if ((mods & HYPER_MOD) == HYPER_MOD) {
                     unregister_code(KC_LSFT);
                     return false;
@@ -192,7 +192,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     return false;
                 }
             } else {
-                // oh hold keyup
+                // on hold keyup
                 if (IS_LAYER_ON(_ADJUST)) {
                     layer_off(_ADJUST);
                     if (IS_LAYER_ON(_GAMEPAD)) {
@@ -230,7 +230,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     return false;
                 }
             } else {
-                // oh hold keyup
+                // on hold keyup
                 if (IS_LAYER_ON(_FKEYS)) {
                     layer_off(_FKEYS);
                     return false;
@@ -267,7 +267,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     return false;
                 }
             } else {
-                // oh hold keyup
+                // on hold keyup
                 if (IS_LAYER_ON(_ADJUST)) {
                     layer_off(_ADJUST);
                     if (IS_LAYER_ON(_BASE)) {

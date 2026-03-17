@@ -36,20 +36,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif // RGB_MATRIX_ENABLE
 
 #if defined(WPM_ENABLE)
-// #    define WPM_LAUNCH_CONTROL
-// #    define WPM_ALLOW_COUNT_REGRESSOIN
-// #    define WPM_UNFILTERED
+#    define WPM_ALLOW_COUNT_REGRESSION
 #    define WPM_SAMPLE_SECONDS 10
 #    define WPM_SAMPLE_PERIODS 50
 #    define WPM_ESTIMATED_WORD_SIZE 5
 #endif
-
-// #define WPM_ESTIMATED_WORD_SIZE 5
-#define WPM_ALLOW_COUNT_REGRESSION
-// #define WPM_UNFILTERED
-// #define WPM_SAMPLE_SECONDS 5
-// #define WPM_SAMPLE_PERIODS 50
-// #define WPM_LAUNCH_CONTROL
 
 
 // Mod Tap sane defaults -------------------------------------------------------
@@ -68,11 +59,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // high TAPPING_TERM settings. Compared to the “permissive hold” mode, this mode
 // selects the hold action in more cases
 #define HOLD_ON_OTHER_KEY_PRESS
-
-// makes it possible to use a dual role key as modifier shortly after having
-// been tapped. Breaks any Tap Toggle functionality (TT or the One Shot Tap
-// Toggle)
-#define QUICK_TAP_TERM 0
 
 #define ONESHOT_TAP_TOGGLE 2
 #define ONESHOT_TIMEOUT 3000
