@@ -36,7 +36,7 @@ void render_layer_state(void) {
 
     // NOTE Layer names:
     // Should be exactly 5 characters in length if vertical display
-    switch (get_highest_layer(layer_state)) {
+    switch (get_highest_layer(layer_state | default_layer_state)) {
         case _GAMEPAD:
             oled_write_P(PSTR("GAMIN"), false);
             break;
