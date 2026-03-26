@@ -4,6 +4,24 @@ This userspace is tailored for my split keyboards, optimizing them particularly 
 
 <!-- I've incorporated a lot of OLED display code from various contributors to the QMK community. -->
 
+## Prerequisites (macOS)
+
+1. Install QMK and its dependencies:
+
+       brew install qmk/qmk/qmk
+
+2. Install the ARM toolchain (required for RP2040-based boards like the Piantor):
+
+       brew install arm-none-eabi-gcc arm-none-eabi-binutils
+
+3. Run QMK setup and point to your firmware checkout:
+
+       qmk setup -H ~/dev/eduarbo/qmk_firmware
+
+4. Set the userspace overlay:
+
+       qmk config user.overlay_dir="$(realpath .)"
+
 ## How to flash
 
 Before flashing, ensure your keyboard is in bootloader mode and that you have properly set up QMK and this userspace.
@@ -109,7 +127,7 @@ Left-side numpad, right-side symbols and arrows, with `,`, `.`, and `⌫` retain
 
 | Symbol | Description | Symbol      | Description | Symbol      | Description |
 |--------|-------------|-------------|-------------|-------------|-------------|
-| `F16`  | Alfred      | `⌘␣`        | Spotlight   | `⇧` + `F16` | Emojis      |
+| `F16`  | Raycast     | `⌘␣`        | Spotlight   | `⇧` + `F16` | Emojis      |
 
 ### Super
 

@@ -10,11 +10,15 @@ Most of the code resides in my userspace, rather than here, as I have other keyb
 
 1. Push and hold the BOOTSEL button on the Pico, then connect to your computer using a micro USB cable. Release BOOTSEL once the drive RPI-RP2 appears on your computer.
 
-2. Flash both sides using the following command:
+2. Flash the right split:
 
-```
-make beekeeb/piantor:eduarbo:flash
-```
+       qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-right
+
+3. Flash the left split:
+
+       qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-left
+
+See the [userspace README](../../../../../users/eduarbo/README.md) for prerequisites and setup instructions.
 
 ## Layers (WIP)
 
