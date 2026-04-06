@@ -16,17 +16,19 @@ uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
             if (++os_detect_retries < OS_DETECT_MAX_RETRIES) {
                 return 500;
             }
+            // Fallback to macOS when detection fails
+            default_layer_set(1UL << _BASE_MAC);
             return 0;
         }
         switch (os_type) {
             case OS_IOS:
             case OS_MACOS:
-                set_single_persistent_default_layer(_BASE_MAC);
+                default_layer_set(1UL << _BASE_MAC);
                 break;
             case OS_WINDOWS:
             case OS_LINUX:
             default:
-                set_single_persistent_default_layer(_BASE);
+                default_layer_set(1UL << _BASE);
                 break;
         }
     }
