@@ -9,10 +9,6 @@
 #include "callbacks.h"
 #include "process_records.h"
 
-#ifdef OS_DETECTION_ENABLE
-#    include "os_detection.h"
-#endif
-
 #ifdef OLED_ENABLE
 #    include "oled_setup.h"
 #endif

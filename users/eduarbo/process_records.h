@@ -4,11 +4,8 @@
 #pragma once
 
 enum userspace_custom_keycodes {
-    VRSN = SAFE_RANGE, // Prints QMK Firmware and board info
+    VRSN = SAFE_RANGE,
     TG_BASE,
-
-    STORE,
-    PRINT,
 };
 
 #define SUPER_MOD (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL))

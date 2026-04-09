@@ -9,5 +9,3 @@
 // use either hands as master as long as the flag that determines which half of
 // the keyboard it is has been set in the persistent storage (EEPROM)
 #define EE_HANDS
-
-#define SPLIT_DETECTED_OS_ENABLE

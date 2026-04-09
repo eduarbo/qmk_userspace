@@ -385,19 +385,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         break;
-
-#if defined(OS_DETECTION_ENABLE) && defined(OS_DETECTION_DEBUG_ENABLE)
-        case STORE:
-            if (record->event.pressed) {
-                store_setups_in_eeprom();
-            }
-            return false;
-        case PRINT:
-            if (record->event.pressed) {
-                print_stored_setups();
-            }
-            return false;
-#endif
     }
     return true;
 }
