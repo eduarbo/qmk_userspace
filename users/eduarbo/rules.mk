@@ -1,8 +1,8 @@
 SRC += process_records.c
 SRC += callbacks.c
 
-# CONSOLE_ENABLE = yes
-# OS_DETECTION_DEBUG_ENABLE = yes
+CONSOLE_ENABLE = yes
+OS_DETECTION_DEBUG_ENABLE = yes
 
 CAPS_WORD_ENABLE ?= yes
 RGBLIGHT_ENABLE ?= no

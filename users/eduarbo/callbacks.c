@@ -15,6 +15,17 @@ static uint8_t os_detect_retries = 0;
 static uint8_t os_consensus_count = 0;
 static os_variant_t last_detected_os = OS_UNSURE;
 
+static const char *os_variant_name(os_variant_t os) {
+    switch (os) {
+        case OS_UNSURE: return "UNSURE";
+        case OS_LINUX:  return "LINUX";
+        case OS_WINDOWS: return "WINDOWS";
+        case OS_MACOS:  return "MACOS";
+        case OS_IOS:    return "IOS";
+        default:        return "UNKNOWN";
+    }
+}
+
 static void apply_detected_os(os_variant_t os) {
     switch (os) {
         case OS_IOS:
@@ -32,12 +43,16 @@ static void apply_detected_os(os_variant_t os) {
 uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
     if (is_keyboard_master()) {
         os_type = detected_host_os();
+        dprintf("OS detect: %s (retry=%u, consensus=%u/%u)\n",
+                os_variant_name(os_type), os_detect_retries,
+                os_consensus_count, OS_DETECT_CONSENSUS_THRESHOLD);
 
         if (os_type == OS_UNSURE) {
             os_consensus_count = 0;
             if (++os_detect_retries < OS_DETECT_MAX_RETRIES) {
                 return 500;
             }
+            dprintf("OS detect: max retries reached, fallback to MAC\n");
             default_layer_set(1UL << _BASE_MAC);
             return 0;
         }
@@ -53,6 +68,11 @@ uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
             if (++os_detect_retries < OS_DETECT_MAX_RETRIES) {
                 return 500;
             }
+            dprintf("OS detect: max retries, applying best guess: %s\n",
+                    os_variant_name(os_type));
+        } else {
+            dprintf("OS detect: consensus reached -> %s\n",
+                    os_variant_name(os_type));
         }
 
         apply_detected_os(os_type);
