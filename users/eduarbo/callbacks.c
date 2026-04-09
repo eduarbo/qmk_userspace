@@ -46,15 +46,15 @@ static uint8_t detection_total_retries = 0;
 static bool detection_reached_consensus = false;
 
 void print_detection_result(void) {
-    dprintf("=== OS Detection Result ===\n");
-    dprintf("  detected: %s\n", os_variant_name(os_type));
-    dprintf("  retries: %u/%u\n", detection_total_retries, OS_DETECT_MAX_RETRIES);
-    dprintf("  consensus: %s (%u/%u)\n",
+    uprintf("=== OS Detection Result ===\n");
+    uprintf("  detected: %s\n", os_variant_name(os_type));
+    uprintf("  retries: %u/%u\n", detection_total_retries, OS_DETECT_MAX_RETRIES);
+    uprintf("  consensus: %s (%u/%u)\n",
             detection_reached_consensus ? "YES" : "NO",
             os_consensus_count, OS_DETECT_CONSENSUS_THRESHOLD);
-    dprintf("  active layer: %s\n",
+    uprintf("  active layer: %s\n",
             get_highest_layer(default_layer_state) == _BASE_MAC ? "MAC" : "BASE");
-    dprintf("===========================\n");
+    uprintf("===========================\n");
 }
 
 void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
