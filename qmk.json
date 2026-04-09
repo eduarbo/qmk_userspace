@@ -1,7 +1,6 @@
 {
     "userspace_version": "1.0",
     "build_targets": [
-        ["beekeeb/piantor", "eduarbo"],
-        ["crkbd", "eduarbo"]
+        ["beekeeb/piantor", "eduarbo"]
     ]
 }

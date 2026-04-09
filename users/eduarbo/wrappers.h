@@ -62,10 +62,14 @@ NOTE: These are all the same length.  If you do a search/replace
 #define _________________F_KEYS_R2_________________     KC_VOLD, TG_GAME, TG_BASE, KC_LPAD, KC_SCRL
 #define _________________F_KEYS_R3_________________     KC_MUTE, KC_BRID, KC_BRIU, KC_MCTL, KC_PAUS
 
-#if defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
-#define _________________ADJUST_L1_________________     RGB_TOG, DB_TOGG, QK_RBT,  EE_CLR,  QK_BOOT
-#define _________________ADJUST_L2_________________     RGB_RMOD,RGB_HUI, RGB_SAI, RGB_VAI, RGB_SPI
-#define _________________ADJUST_L3_________________     RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, RGB_SPD
+#if defined(RGB_MATRIX_ENABLE)
+#define _________________ADJUST_L1_________________     RM_TOGG, DB_TOGG, QK_RBT,  EE_CLR,  QK_BOOT
+#define _________________ADJUST_L2_________________     RM_PREV, RM_HUEU, RM_SATU, RM_VALU, RM_SPDU
+#define _________________ADJUST_L3_________________     RM_NEXT, RM_HUED, RM_SATD, RM_VALD, RM_SPDD
+#elif defined(RGBLIGHT_ENABLE)
+#define _________________ADJUST_L1_________________     UG_TOGG, DB_TOGG, QK_RBT,  EE_CLR,  QK_BOOT
+#define _________________ADJUST_L2_________________     UG_PREV, UG_HUEU, UG_SATU, UG_VALU, UG_SPDU
+#define _________________ADJUST_L3_________________     UG_NEXT, UG_HUED, UG_SATD, UG_VALD, UG_SPDD
 #else
 #define _________________ADJUST_L1_________________     XXXXXXX, DB_TOGG, QK_RBT,  EE_CLR,  QK_BOOT
 #define _________________ADJUST_L2_________________     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
