@@ -40,11 +40,12 @@ static void apply_detected_os(os_variant_t os) {
     }
 }
 
-static bool   detection_complete = false;
+static bool detection_complete = false;
+static bool detection_printed = false;
 static uint8_t detection_total_retries = 0;
-static bool   detection_reached_consensus = false;
+static bool detection_reached_consensus = false;
 
-uint32_t print_detection_result(uint32_t trigger_time, void *cb_arg) {
+void print_detection_result(void) {
     dprintf("=== OS Detection Result ===\n");
     dprintf("  detected: %s\n", os_variant_name(os_type));
     dprintf("  retries: %u/%u\n", detection_total_retries, OS_DETECT_MAX_RETRIES);
@@ -54,7 +55,13 @@ uint32_t print_detection_result(uint32_t trigger_time, void *cb_arg) {
     dprintf("  active layer: %s\n",
             get_highest_layer(default_layer_state) == _BASE_MAC ? "MAC" : "BASE");
     dprintf("===========================\n");
-    return 0;
+}
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (detection_complete && !detection_printed) {
+        detection_printed = true;
+        print_detection_result();
+    }
 }
 
 uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
@@ -69,7 +76,6 @@ uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
             detection_complete = true;
             detection_total_retries = os_detect_retries;
             default_layer_set(1UL << _BASE_MAC);
-            defer_exec(3000, print_detection_result, NULL);
             return 0;
         }
 
@@ -91,7 +97,6 @@ uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
         detection_complete = true;
         detection_total_retries = os_detect_retries;
         apply_detected_os(os_type);
-        defer_exec(3000, print_detection_result, NULL);
     }
 
     return 0;
