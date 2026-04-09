@@ -40,20 +40,36 @@ static void apply_detected_os(os_variant_t os) {
     }
 }
 
+static bool   detection_complete = false;
+static uint8_t detection_total_retries = 0;
+static bool   detection_reached_consensus = false;
+
+uint32_t print_detection_result(uint32_t trigger_time, void *cb_arg) {
+    dprintf("=== OS Detection Result ===\n");
+    dprintf("  detected: %s\n", os_variant_name(os_type));
+    dprintf("  retries: %u/%u\n", detection_total_retries, OS_DETECT_MAX_RETRIES);
+    dprintf("  consensus: %s (%u/%u)\n",
+            detection_reached_consensus ? "YES" : "NO",
+            os_consensus_count, OS_DETECT_CONSENSUS_THRESHOLD);
+    dprintf("  active layer: %s\n",
+            get_highest_layer(default_layer_state) == _BASE_MAC ? "MAC" : "BASE");
+    dprintf("===========================\n");
+    return 0;
+}
+
 uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
     if (is_keyboard_master()) {
         os_type = detected_host_os();
-        dprintf("OS detect: %s (retry=%u, consensus=%u/%u)\n",
-                os_variant_name(os_type), os_detect_retries,
-                os_consensus_count, OS_DETECT_CONSENSUS_THRESHOLD);
 
         if (os_type == OS_UNSURE) {
             os_consensus_count = 0;
             if (++os_detect_retries < OS_DETECT_MAX_RETRIES) {
                 return 500;
             }
-            dprintf("OS detect: max retries reached, fallback to MAC\n");
+            detection_complete = true;
+            detection_total_retries = os_detect_retries;
             default_layer_set(1UL << _BASE_MAC);
+            defer_exec(3000, print_detection_result, NULL);
             return 0;
         }
 
@@ -68,14 +84,14 @@ uint32_t startup_exec(uint32_t trigger_time, void *cb_arg) {
             if (++os_detect_retries < OS_DETECT_MAX_RETRIES) {
                 return 500;
             }
-            dprintf("OS detect: max retries, applying best guess: %s\n",
-                    os_variant_name(os_type));
         } else {
-            dprintf("OS detect: consensus reached -> %s\n",
-                    os_variant_name(os_type));
+            detection_reached_consensus = true;
         }
 
+        detection_complete = true;
+        detection_total_retries = os_detect_retries;
         apply_detected_os(os_type);
+        defer_exec(3000, print_detection_result, NULL);
     }
 
     return 0;
