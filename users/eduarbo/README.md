@@ -10,8 +10,9 @@ used on the MacBook keyboard.
 - `beekeeb/piantor:eduarbo`
 - `crkbd/rev1:eduarbo`
 
-Both targets use the same userspace code and are listed in `qmk.json`, so the
-GitHub Actions build checks both on every push.
+Both targets use the same userspace code and are listed in `qmk.json`.
+`qmk userspace-compile` checks both locally; the included GitHub Actions workflow
+does the same on pushes after workflows have been enabled for this fork.
 
 The AVR-based CRKBD keeps its OLED and custom animations. RGB Matrix is
 explicitly disabled in its keymap to fit the firmware size limit. The verified

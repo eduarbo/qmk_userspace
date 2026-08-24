@@ -13,9 +13,12 @@ in [the userspace documentation](users/eduarbo/README.md).
 - `beekeeb/piantor:eduarbo`
 - `crkbd/rev1:eduarbo`
 
-GitHub Actions compiles both targets on every push. A successful build verifies
-that the shared userspace compiles for both boards; flashing and a physical key
-test are still required before treating a behavior change as hardware-verified.
+`qmk.json` is the authoritative build matrix, and `qmk userspace-compile`
+compiles both targets. The included GitHub Actions workflow uses the same matrix
+on pushes after workflows have been enabled for this fork. A successful build
+verifies that the shared userspace compiles for both boards; flashing and a
+physical key test are still required before treating a behavior change as
+hardware-verified.
 The AVR-based Corne keeps its OLED animations but disables RGB Matrix to stay
 within its firmware size limit; its build has little spare flash and must remain
 in the build matrix for every change.
