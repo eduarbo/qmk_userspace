@@ -13,6 +13,11 @@ used on the MacBook keyboard.
 Both targets use the same userspace code and are listed in `qmk.json`, so the
 GitHub Actions build checks both on every push.
 
+The AVR-based CRKBD keeps its OLED and custom animations. RGB Matrix is
+explicitly disabled in its keymap to fit the firmware size limit. The verified
+build uses about 98% of available flash, so every userspace change must compile
+both targets before it is accepted.
+
 ## How to build and flash
 
 ### Prerequisites on macOS
@@ -152,7 +157,8 @@ Winux base.
 Adjust contains firmware controls (debug, reboot, EEPROM clear, bootloader) and
 lighting controls when enabled. The F-Keys layer contains the persistent base
 toggle and the Gamepad toggle. Gamepad is a right-shifted QWERTY layer for FPS
-controls.
+controls. RGB Matrix controls do not affect the CRKBD build because that feature
+is disabled there to preserve flash for OLED and the shared layout behavior.
 
 ## Physical verification checklist
 

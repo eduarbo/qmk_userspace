@@ -16,6 +16,9 @@ in [the userspace documentation](users/eduarbo/README.md).
 GitHub Actions compiles both targets on every push. A successful build verifies
 that the shared userspace compiles for both boards; flashing and a physical key
 test are still required before treating a behavior change as hardware-verified.
+The AVR-based Corne keeps its OLED animations but disables RGB Matrix to stay
+within its firmware size limit; its build has little spare flash and must remain
+in the build matrix for every change.
 
 ## Local build
 
