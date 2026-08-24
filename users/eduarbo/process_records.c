@@ -4,6 +4,174 @@
 #include "eduarbo.h"
 #include "version.h"
 
+typedef enum {
+    SUPER_FN_NONE,
+    SUPER_FN_SPACE,
+    SUPER_FN_THUMB,
+} super_fn_source_t;
+
+enum fkeys_owner {
+    FKEYS_OWNER_SUPER_FN    = 1 << 0,
+    FKEYS_OWNER_GAMEPAD_FN  = 1 << 1,
+    FKEYS_OWNER_ESCAPE      = 1 << 2,
+    FKEYS_OWNER_GAMEPAD_ALT = 1 << 3,
+};
+
+static bool     super_key_held;
+static bool     symbols_key_held;
+static bool     space_key_held;
+static bool     right_fn_key_held;
+static uint16_t right_fn_held_keycode;
+
+/* Once a chord takes ownership, its releases must not reach the original
+ * Mod-Tap/Layer-Tap actions. This prevents a survivor from becoming sticky. */
+static bool super_event_owned;
+static bool symbols_event_owned;
+static bool space_event_owned;
+static bool right_fn_event_owned;
+static bool gamepad_fkeys_active;
+static bool escape_fkeys_active;
+static bool gamepad_alt_fkeys_active;
+
+static uint8_t fkeys_owners;
+static bool    fkeys_was_preexisting;
+static uint8_t gamepad_alt_fkeys_restore_mod;
+
+static struct {
+    bool    active;
+    uint8_t weak_mods_added;
+} hyper_state;
+
+static struct {
+    bool              active;
+    bool              right_mod_registered;
+    super_fn_source_t source;
+    uint16_t          source_keycode;
+    uint8_t           right_mod;
+} super_fn_state;
+
+static void acquire_fkeys(uint8_t owner) {
+    if (fkeys_owners & owner) {
+        return;
+    }
+    if (!fkeys_owners) {
+        fkeys_was_preexisting = IS_LAYER_ON(_FKEYS);
+        if (!fkeys_was_preexisting) {
+            layer_on(_FKEYS);
+        }
+    }
+    fkeys_owners |= owner;
+}
+
+static void release_fkeys(uint8_t owner) {
+    if (!(fkeys_owners & owner)) {
+        return;
+    }
+    fkeys_owners &= ~owner;
+    if (!fkeys_owners) {
+        if (!fkeys_was_preexisting) {
+            layer_off(_FKEYS);
+        }
+        fkeys_was_preexisting = false;
+    }
+}
+
+static bool is_mac_base(void) {
+    return get_highest_layer(default_layer_state) == _BASE_MAC;
+}
+
+static uint8_t right_fn_mod_for_base(void) {
+    return is_mac_base() ? MOD_BIT(KC_RCTL) : MOD_BIT(KC_RGUI);
+}
+
+static uint8_t right_mod_for_keycode(uint16_t keycode) {
+    return keycode == F16_RCTL ? MOD_BIT(KC_RCTL) : MOD_BIT(KC_RGUI);
+}
+
+static void tap_code_with_exact_mods(uint16_t keycode, uint8_t mods) {
+    const uint8_t saved_mods         = get_mods();
+    const uint8_t saved_weak_mods    = get_weak_mods();
+    const uint8_t saved_oneshot_mods = get_oneshot_mods();
+
+    set_mods(mods);
+    set_weak_mods(0);
+    set_oneshot_mods(0);
+    send_keyboard_report();
+    tap_code(keycode);
+    set_mods(saved_mods);
+    set_weak_mods(saved_weak_mods);
+    set_oneshot_mods(saved_oneshot_mods);
+    send_keyboard_report();
+}
+
+static void enter_hyper(void) {
+    const uint8_t weak_mods = get_weak_mods();
+
+    super_event_owned   = true;
+    symbols_event_owned = true;
+
+    unregister_mods(SUPER_MOD);
+    layer_off(_SYMBOLS);
+
+    hyper_state.weak_mods_added = HYPER_MOD & ~weak_mods;
+    add_weak_mods(hyper_state.weak_mods_added);
+    send_keyboard_report();
+    hyper_state.active = true;
+}
+
+static void leave_hyper(void) {
+    del_weak_mods(hyper_state.weak_mods_added);
+    send_keyboard_report();
+    hyper_state.weak_mods_added = 0;
+    hyper_state.active          = false;
+
+    if (super_key_held) {
+        register_mods(SUPER_MOD);
+    }
+    if (symbols_key_held) {
+        layer_on(_SYMBOLS);
+    }
+}
+
+static void enter_super_fn(super_fn_source_t source, uint16_t source_keycode) {
+    super_fn_state.active         = true;
+    super_fn_state.source         = source;
+    super_fn_state.source_keycode = source_keycode;
+    super_fn_state.right_mod      = source == SUPER_FN_SPACE ? right_fn_mod_for_base() : right_mod_for_keycode(source_keycode);
+
+    super_event_owned = true;
+    if (source == SUPER_FN_SPACE) {
+        space_event_owned = true;
+    } else {
+        right_fn_event_owned = true;
+        unregister_mods(super_fn_state.right_mod);
+    }
+
+    unregister_mods(SUPER_MOD);
+    acquire_fkeys(FKEYS_OWNER_SUPER_FN);
+}
+
+static void release_super_from_fn(void) {
+    unregister_mods(SUPER_MOD);
+    if ((super_fn_state.source == SUPER_FN_SPACE && space_key_held) || (super_fn_state.source == SUPER_FN_THUMB && right_fn_key_held)) {
+        register_mods(super_fn_state.right_mod);
+        super_fn_state.right_mod_registered = true;
+    }
+}
+
+static void release_source_from_fn(void) {
+    if (super_fn_state.right_mod_registered) {
+        unregister_mods(super_fn_state.right_mod);
+        super_fn_state.right_mod_registered = false;
+    }
+    release_fkeys(FKEYS_OWNER_SUPER_FN);
+    if (super_key_held) {
+        register_mods(SUPER_MOD);
+    }
+    super_fn_state.active = false;
+    super_fn_state.source = SUPER_FN_NONE;
+}
+
 /**
  * @brief Main user keycode handler
  *
@@ -15,9 +183,11 @@
  * @return false Stop process keycode and do not send to host
  */
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    const uint8_t mods    = get_mods();
-    const uint8_t os_mods = get_oneshot_mods();
-    const bool super_mod_active = (mods & SUPER_MOD) == SUPER_MOD && !(mods & MOD_MASK_SHIFT);
+    const uint8_t mods             = get_mods();
+    const uint8_t weak_mods        = get_weak_mods();
+    const uint8_t os_mods          = get_oneshot_mods();
+    const uint8_t effective_mods   = mods | weak_mods | os_mods;
+    const bool    super_mod_active = !hyper_state.active && !super_fn_state.active && (mods & SUPER_MOD) == SUPER_MOD && !(mods & MOD_MASK_SHIFT);
 
     switch (keycode) {
         case TG_BASE:
@@ -31,14 +201,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             break;
 
-        case TILDE:
-        case VIRGULI:
-            if (record->event.pressed) {
-                if (get_highest_layer(default_layer_state) == _BASE) {
-                    // Use AltGr (RALT) to type accents and ñ with the "US Intl. with AltGr dead keys" layout
-                    set_oneshot_mods(os_mods | MOD_BIT(KC_RALT));
-                    return false;
+        case ACUTE_LSFT:
+        case TILDE_LSFT:
+            if (record->tap.count) {
+                if (record->event.pressed) {
+                    const uint8_t  accent_mod = is_mac_base() ? MOD_BIT(KC_LALT) : MOD_BIT(KC_RALT);
+                    const uint16_t accent_key = keycode == ACUTE_LSFT ? KC_E : KC_N;
+                    tap_code_with_exact_mods(accent_key, accent_mod);
                 }
+                return false;
             }
             break;
 
@@ -71,9 +242,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
 
         case SPC_LSFT:
-            if (IS_LAYER_ON(_SYMBOLS) && record->tap.count && record->event.pressed) {
-                tap_code16(S(KC_SPC));
-                return false; // Return false to ignore further processing of key
+            if (record->tap.count) {
+                if (record->event.pressed) {
+                    if (super_mod_active) {
+                        tap_code_with_exact_mods(KC_F16, 0);
+                    } else if (IS_LAYER_ON(_SYMBOLS)) {
+                        tap_code_with_exact_mods(KC_SPC, MOD_BIT(KC_LSFT));
+                    } else {
+                        return true;
+                    }
+                }
+                if (super_mod_active || IS_LAYER_ON(_SYMBOLS)) {
+                    return false;
+                }
+            } else if (record->event.pressed) {
+                space_key_held = true;
+                if (super_mod_active) {
+                    enter_super_fn(SUPER_FN_SPACE, keycode);
+                    return false;
+                }
+            } else {
+                space_key_held = false;
+                if (super_fn_state.active && super_fn_state.source == SUPER_FN_SPACE) {
+                    release_source_from_fn();
+                    space_event_owned = false;
+                    return false;
+                }
+                if (space_event_owned) {
+                    unregister_mods(right_fn_mod_for_base());
+                    space_event_owned = false;
+                    return false;
+                }
             }
             break;
 
@@ -90,16 +289,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             } else if (record->event.pressed) {
                 // on hold keydown
-                if (IS_LAYER_ON(_SYMBOLS)) {
-                    layer_off(_SYMBOLS);
-                    register_mods(HYPER_MOD);
+                super_key_held = true;
+                if (symbols_key_held) {
+                    enter_hyper();
+                    return false;
+                } else if (right_fn_key_held) {
+                    enter_super_fn(SUPER_FN_THUMB, right_fn_held_keycode);
                     return false;
                 } else if ((mods & MOD_BIT(KC_RCTL)) == MOD_BIT(KC_RCTL)) {
                     unregister_code(KC_RCTL);
-                    if (IS_LAYER_ON(_BASE)) {
-                        layer_on(_ADJUST);
+                    if (is_mac_base()) {
+                        acquire_fkeys(FKEYS_OWNER_ESCAPE);
+                        escape_fkeys_active = true;
                     } else {
-                        layer_on(_FKEYS);
+                        layer_on(_ADJUST);
                     }
                     return false;
                 } else if ((mods & MOD_BIT(KC_RGUI)) == MOD_BIT(KC_RGUI)) {
@@ -113,24 +316,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             } else {
                 // on hold keyup
-                if ((mods & HYPER_MOD) == HYPER_MOD) {
-                    unregister_mods(HYPER_MOD);
-                    layer_on(_SYMBOLS);
+                super_key_held = false;
+                if (hyper_state.active) {
+                    leave_hyper();
+                    super_event_owned = false;
                     return false;
-                } else if (IS_LAYER_ON(_FKEYS)) {
-                    layer_off(_FKEYS);
-                    if (IS_LAYER_ON(_BASE)) {
-                        register_code(KC_RGUI);
-                    } else {
-                        register_code(KC_RCTL);
-                    }
+                } else if (super_fn_state.active) {
+                    release_super_from_fn();
+                    super_event_owned = false;
+                    return false;
+                } else if (super_event_owned) {
+                    unregister_mods(SUPER_MOD);
+                    super_event_owned = false;
+                    return false;
+                } else if (escape_fkeys_active) {
+                    release_fkeys(FKEYS_OWNER_ESCAPE);
+                    register_code(KC_RCTL);
+                    escape_fkeys_active = false;
                     return false;
                 } else if (IS_LAYER_ON(_ADJUST)) {
                     layer_off(_ADJUST);
-                    if (IS_LAYER_ON(_BASE)) {
-                        register_code(KC_RCTL);
-                    } else {
+                    if (is_mac_base()) {
                         register_code(KC_RGUI);
+                    } else {
+                        register_code(KC_RCTL);
                     }
                     return false;
                 }
@@ -139,22 +348,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
 
         case TAB_SYMB: {
-            if (record->tap.count && record->event.pressed) {
-                // on tap
-                if (super_mod_active) {
+            if (record->tap.count) {
+                if (record->event.pressed && super_mod_active) {
                     set_oneshot_mods(os_mods | MOD_BIT(KC_RALT));
+                }
+                if (super_mod_active) {
                     return false;
                 }
             } else if (record->event.pressed) {
                 // on hold keydown
-                if (super_mod_active) {
-                    register_mods(HYPER_MOD);
+                symbols_key_held = true;
+                if (super_key_held && !super_fn_state.active) {
+                    enter_hyper();
                     return false;
                 }
             } else {
                 // on hold keyup
-                if ((mods & HYPER_MOD) == HYPER_MOD) {
-                    unregister_code(KC_LSFT);
+                symbols_key_held = false;
+                if (hyper_state.active) {
+                    leave_hyper();
+                    symbols_event_owned = false;
+                    return false;
+                }
+                if (symbols_event_owned) {
+                    layer_off(_SYMBOLS);
+                    symbols_event_owned = false;
                     return false;
                 }
             }
@@ -167,17 +385,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             is_calm = (record->event.pressed) ? true : false;
 #endif
 
-            if (record->tap.count && record->event.pressed) {
-                // on tap
-                if (super_mod_active) {
-                    if (keycode == ENT_RCTL) {
-                        set_oneshot_mods(os_mods | MOD_BIT(KC_RCTL));
-                    } else if (keycode == ENT_RGUI) {
-                        set_oneshot_mods(os_mods | MOD_BIT(KC_RGUI));
+            if (record->tap.count) {
+                if (record->event.pressed) {
+                    // on tap
+                    if (super_mod_active) {
+                        if (keycode == ENT_RCTL) {
+                            set_oneshot_mods(os_mods | MOD_BIT(KC_RCTL));
+                        } else if (keycode == ENT_RGUI) {
+                            set_oneshot_mods(os_mods | MOD_BIT(KC_RGUI));
+                        }
+                    } else if (IS_LAYER_ON(_SYMBOLS)) {
+                        if (effective_mods & MOD_MASK_SHIFT) {
+                            tap_code_with_exact_mods(KC_ENT, is_mac_base() ? MOD_BIT(KC_LGUI) : MOD_BIT(KC_LCTL));
+                        } else {
+                            tap_code_with_exact_mods(KC_ENT, MOD_BIT(KC_LSFT));
+                        }
+                    } else {
+                        return true;
                     }
-                    return false;
-                } else if (IS_LAYER_ON(_SYMBOLS)) {
-                    tap_code16(S(KC_ENT));
+                }
+                if (super_mod_active || IS_LAYER_ON(_SYMBOLS)) {
                     return false;
                 }
             } else if (record->event.pressed) {
@@ -206,33 +433,53 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case F16_RGUI:
         case F16_RCTL: {
-            if (record->tap.count && record->event.pressed) {
-                // on tap
-                if (super_mod_active) {
-                    if (keycode == F16_RGUI) {
-                        set_oneshot_mods(os_mods | MOD_BIT(KC_RGUI));
-                    } else if (keycode == F16_RCTL) {
-                        set_oneshot_mods(os_mods | MOD_BIT(KC_RCTL));
+            if (record->tap.count) {
+                if (record->event.pressed) {
+                    // on tap
+                    if (super_mod_active) {
+                        if (keycode == F16_RGUI) {
+                            set_oneshot_mods(os_mods | MOD_BIT(KC_RGUI));
+                        } else if (keycode == F16_RCTL) {
+                            set_oneshot_mods(os_mods | MOD_BIT(KC_RCTL));
+                        }
+                    } else {
+                        tap_code16(KC_F16);
                     }
-                } else {
-                    tap_code16(KC_F16);
                 }
                 return false;
             } else if (record->event.pressed) {
                 // on hold keydown
+                right_fn_key_held     = true;
+                right_fn_held_keycode = keycode;
                 if (super_mod_active) {
-                    unregister_mods(SUPER_MOD);
-                    layer_on(_FKEYS);
+                    enter_super_fn(SUPER_FN_THUMB, keycode);
                     return false;
                 } else if (IS_LAYER_ON(_GAMEPAD) && ((mods & MOD_BIT(KC_LALT)) == MOD_BIT(KC_LALT))) {
                     unregister_code(KC_LALT);
-                    layer_on(_FKEYS);
+                    gamepad_fkeys_active = true;
+                    acquire_fkeys(FKEYS_OWNER_GAMEPAD_FN);
                     return false;
                 }
             } else {
                 // on hold keyup
-                if (IS_LAYER_ON(_FKEYS)) {
-                    layer_off(_FKEYS);
+                right_fn_key_held = false;
+                if (super_fn_state.active && super_fn_state.source == SUPER_FN_THUMB && super_fn_state.source_keycode == keycode) {
+                    release_source_from_fn();
+                    if (gamepad_fkeys_active) {
+                        release_fkeys(FKEYS_OWNER_GAMEPAD_FN);
+                        gamepad_fkeys_active = false;
+                    }
+                    right_fn_event_owned = false;
+                    return false;
+                }
+                if (right_fn_event_owned) {
+                    unregister_mods(right_mod_for_keycode(keycode));
+                    right_fn_event_owned = false;
+                    return false;
+                }
+                if (gamepad_fkeys_active) {
+                    release_fkeys(FKEYS_OWNER_GAMEPAD_FN);
+                    gamepad_fkeys_active = false;
                     return false;
                 }
             }
@@ -251,34 +498,36 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // on hold keydown
                 if ((mods & MOD_BIT(KC_RCTL)) == MOD_BIT(KC_RCTL)) {
                     unregister_code(KC_LALT);
-                    if (IS_LAYER_ON(_BASE)) {
-                        layer_on(_ADJUST);
+                    if (is_mac_base()) {
+                        acquire_fkeys(FKEYS_OWNER_GAMEPAD_ALT);
+                        gamepad_alt_fkeys_active      = true;
+                        gamepad_alt_fkeys_restore_mod = MOD_BIT(KC_RCTL);
                     } else {
-                        layer_on(_FKEYS);
+                        layer_on(_ADJUST);
                     }
                     return false;
                 } else if ((mods & MOD_BIT(KC_RGUI)) == MOD_BIT(KC_RGUI)) {
                     unregister_code(KC_LALT);
-                    if (IS_LAYER_ON(_BASE)) {
-                        layer_on(_FKEYS);
-                    } else {
+                    if (is_mac_base()) {
                         layer_on(_ADJUST);
+                    } else {
+                        acquire_fkeys(FKEYS_OWNER_GAMEPAD_ALT);
+                        gamepad_alt_fkeys_active      = true;
+                        gamepad_alt_fkeys_restore_mod = MOD_BIT(KC_RGUI);
                     }
                     return false;
                 }
             } else {
                 // on hold keyup
-                if (IS_LAYER_ON(_ADJUST)) {
-                    layer_off(_ADJUST);
-                    if (IS_LAYER_ON(_BASE)) {
-                        register_code(KC_RCTL);
-                    } else {
-                        register_code(KC_RGUI);
-                    }
+                if (gamepad_alt_fkeys_active) {
+                    release_fkeys(FKEYS_OWNER_GAMEPAD_ALT);
+                    register_mods(gamepad_alt_fkeys_restore_mod);
+                    gamepad_alt_fkeys_active      = false;
+                    gamepad_alt_fkeys_restore_mod = 0;
                     return false;
-                } else if (IS_LAYER_ON(_FKEYS)) {
-                    layer_off(_FKEYS);
-                    if (IS_LAYER_ON(_BASE)) {
+                } else if (IS_LAYER_ON(_ADJUST)) {
+                    layer_off(_ADJUST);
+                    if (is_mac_base()) {
                         register_code(KC_RGUI);
                     } else {
                         register_code(KC_RCTL);
@@ -384,7 +633,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 return false;
             }
-        break;
+            break;
     }
     return true;
 }

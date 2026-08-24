@@ -1,99 +1,96 @@
-# Eduarbo's Split Keyboard Userspace
+# Eduardo's split-keyboard layout
 
-This userspace is tailored for my split keyboards, optimizing them particularly for coding. It's designed for keyboards such as the 36-key Piantor and the 42-key CRKBD equipped with an OLED display. By prioritizing simplicity and functionality, I've aimed to provide a consistent keymapping experience across all my keyboards. This ensures a seamless transition between different keyboards and keeps all essential coding keys within easy reach.
+Shared 36-key layout for the Piantor and the 3x5 Corne (CRKBD). The layer and
+chord behavior intentionally tracks the
+[Karabiner-Elements version](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner)
+used on the MacBook keyboard.
 
-<!-- I've incorporated a lot of OLED display code from various contributors to the QMK community. -->
+## Supported targets
 
-## Prerequisites (macOS)
+- `beekeeb/piantor:eduarbo`
+- `crkbd/rev1:eduarbo`
 
-1. Install QMK and its dependencies:
+Both targets use the same userspace code and are listed in `qmk.json`, so the
+GitHub Actions build checks both on every push.
 
-       brew install qmk/qmk/qmk
+## How to build and flash
 
-2. Install the ARM toolchain (required for RP2040-based boards like the Piantor):
+### Prerequisites on macOS
 
-       brew install arm-none-eabi-gcc arm-none-eabi-binutils
+```sh
+brew install qmk/qmk/qmk
+brew install arm-none-eabi-gcc arm-none-eabi-binutils
+qmk setup -H ~/dev/eduarbo/qmk_firmware
+qmk config user.overlay_dir="$(realpath .)"
+```
 
-3. Run QMK setup and point to your firmware checkout:
+Run the overlay command from the root of this userspace checkout.
 
-       qmk setup -H ~/dev/eduarbo/qmk_firmware
+### Build every configured target
 
-4. Set the userspace overlay:
+```sh
+qmk userspace-compile
+```
 
-       qmk config user.overlay_dir="$(realpath .)"
+### Piantor split UF2 images
 
-## How to flash
+Put the appropriate half in bootloader mode, then build the matching image:
 
-Before flashing, ensure your keyboard is in bootloader mode and that you have properly set up QMK and this userspace.
+```sh
+qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-right
+qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-left
+```
 
-### Piantor
+### Corne (CRKBD rev1)
 
-To flash the right split, use the command:
+```sh
+qmk compile -kb crkbd/rev1 -km eduarbo
+```
 
-    qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-right
+## Behavior contract
 
-For the left split, use:
+The following chords are shared with the Karabiner layout unless a difference
+is called out explicitly:
 
-    qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-left
+| Chord | Tap/result | Hold/release behavior |
+| --- | --- | --- |
+| `Symbols+A` | macOS: `Option+E`; Winux: `Right Alt+E` | `A` is Shift while held, without leaving Symbols |
+| `Symbols+;` | macOS: `Option+N`; Winux: `Right Alt+N` | `;` is Shift while held, without leaving Symbols |
+| `Symbols+Return` | `Shift+Return` | Existing Symbols behavior is preserved |
+| `Symbols+Shift+Return` | macOS: `Command+Return`; Winux: `Control+Return` | Shift is removed only for the emitted chord and then restored |
+| `Symbols+Super` or `Super+Symbols` | Hyper (`Shift+Command+Option+Control`) | Momentary in both press orders; releasing either key restores only the key still held |
+| `Super+Space` | `F16` | With Super pressed first, holding Space enters F-Keys; either release order restores Super or the right Fn modifier correctly |
 
-<!-- ### Corne Keyboard (CRKBD) -->
+`Symbols+Z` uses QMK's native Caps Word. This is the one deliberate runtime
+difference: Karabiner emits Caps Lock there because it has no native Caps Word
+state machine.
 
-## Features
+Super plus a right thumb key can still emit the corresponding one-shot modifier
+on tap. That QMK convenience is separate from Hyper: the Hyper chord itself is
+strictly momentary and never leaves Symbols or Shift latched.
 
-- Dynamic Base Layer: Adapts the base layer based on the detected OS at boot
-- Auto Hand Detection: Determines handiness by the USB-connected half
-- Caps Word: Prevent unintentional CAPS LOCK activations for uninterrupted typing
-<!-- - OLED Animations (CRKBD): Features captivating [Ocean Dream](../snowe/readme_ocean_dream.md) and Bongocat displays -->
-<!-- - RGB Underglow (CRKBD): Dynamic RGB lighting underglow effects -->
+## Symbols
 
-## Keymaps
+The accent keys are Shift mod-taps: tap for the dead key, hold for Shift.
 
-<!-- - [Crkdb/eduarbo](../../keyboards/crkbd/keymaps/eduarbo/keymap.c) -->
-- [Piantor/eduarbo](../../keyboards/beekeeb/piantor/keymaps/eduarbo/keymap.c)
+```text
+╭─────┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬─────╮
+│  ▲  │ 7 │ 8 │ 9 │ 0 │       │ \ │ [ │ ] │ / │  ▼  │
+├─────┼───┼───┼───┼───┤       ├───┼───┼───┼───┼─────┤
+│ ´/⇧ │ 4 │ 5 │ 6 │ = │       │ ← │ ↓ │ ↑ │ → │ ~/⇧ │
+├─────┼───┼───┼───┼───┤       ├───┼───┼───┼───┼─────┤
+│ CW  │ 1 │ 2 │ 3 │ - │       │ ` │ ' │   │   │     │
+╰─────┴───┴───┴───┴───╯       ╰───┴───┴───┴───┴─────╯
+```
 
-## My layout
+`▲`/`▼` are Page Up/Page Down; holding Shift changes them to Home/End.
 
-This layout is built for my main keyboard, a 36-key Piantor, but since I sometimes need to use the MacBook's built-in keyboard, I’ve [replicated the layout with Karabiner Elements](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/README.md#super). This way, I maintain a consistent keymapping experience whether I’m using the external keyboard or the MacBook’s internal one, as I don’t always have my mechanical keyboard with me 😞.
+## Base layers
 
-### Why this layout distribuition?
+The base is selected persistently with `TG_BASE` on Adjust. It is not detected
+from the operating system at boot.
 
-- Super Mod: Frequently used shortcuts. Placed on the left hand for ease of use with the mouse in the right hand.
-- Shift: Positioned on the left to be used with modifiers on the opposite side and with the mouse.
-- Symbols Layer: For all symbols that didn’t fit on the base layer. Positioned on the right to use the arrow keys (hjkl) with one hand.
-- Command: Placed on both sides since, like the Shift key, it is often used with other modifiers. This placement maintains consistency with the integrated keyboard, where the spacebar can be used with any modifier on either side.
-- Alt/Option: This modifier is less used in macOS, so I prioritized the Super key in the thumbs cluster.
-- Space: Placed in the most accessible positions, such as the Shift or Symbols keys, which are the most used modifiers when typing.
-- Enter: Positioned on both the left and right sides to facilitate copying, pasting, and pressing Enter while using the mouse. Keeping Enter on the left side prevents the need to move the right hand from the mouse to the keyboard.
-- Sticky mods (CMD, CTRL, ALT): Available when holding the Super key for the rare occasions when I need to combine mods.
-- Avoid placing Enter on the Shift or Symbols keys to prevent accidental presses while typing.
-
-### Symbols chart
-
-#### Modifiers
-
-| Symbol | description | Symbol | description   | Symbol | description    |
-|--------|-------------|--------|---------------|--------|----------------|
-| `⌘`    | command     | `⌃`    | control       | `⇧`    | shift          |
-| `⌥`    | option      | `≡`    | super (`⌘⌥⌃`) | `≢`    | hyper (`⇧⌘⌥⌃`) |
-
-#### Layers
-
-| Symbol | description | Symbol | description | Symbol | description  |
-|--------|-------------|--------|-------------|--------|--------------|
-| `⇪`    | symbols     | `ƒ`    | f-keys      | `⊕`    | adjust (QMK) |
-
-#### Other Keys
-
-| Symbol | Description | Symbol | Description | Symbol | Description |
-|--------|-------------|--------|-------------|--------|-------------|
-| `␣`    | Space       | `⌫`    | Backspace   | `⇧▲`   | Home        |
-| `⇥`    | Tab         | `⌦`    | Delete      | `⇧▼`   | End         |
-| `⏎`    | Enter       | `▼`    | Page Down   | `CW`   | Caps Word   |
-| `⎋`    | Escape      | `▲`    | Page Up     |        |             |
-
-### Base
-
-Standard QWERTY layout, with the delete key replacing the slash key. Modifiers are set as mod-tap (acting as a modifier when held and a regular keycode when tapped). Central modifiers are treated as one, allowing the layout to be replicated on a MacBook keyboard by using the space key in place of the central modifiers.
+### macOS base
 
 ```text
 ╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
@@ -103,125 +100,70 @@ Standard QWERTY layout, with the delete key replacing the slash key. Modifiers a
 ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
 │ Z │ X │ C │ V │ B │       │ N │ M │ , │ . │ ⌫ │
 ╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │ ⎋ │ ␣ │ ⏎ │ │ ⏎ │ ⇥ │F16│ ← on tap
-           │ ≡ │ ⇧ │ ⌘ │ │ ⌘ │ ⇪ │ ⌃ │ ← on hold
+           │ ⎋ │ ␣ │ ⏎ │ │ ⏎ │ ⇥ │F16│ ← tap
+           │ ≡ │ ⇧ │ ⌘ │ │ ⌘ │ ⇪ │ ⌃ │ ← hold
            ╰───┴───┴───╯ ╰───┴───┴───╯
 ```
 
-### Symbols
+### Winux base
 
-Left-side numpad, right-side symbols and arrows, with `,`, `.`, and `⌫` retained for easy number typing.
+Winux uses Control where the macOS base uses Command. Its right Fn thumb is
+`F16` on tap and Right GUI on hold; the Return thumbs hold Right Control.
 
 ```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│ ▲ │ 7 │ 8 │ 9 │ 0 │       │ \ │ [ │ ] │ / │ ▼ │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│ ´ │ 4 │ 5 │ 6 │ = │       │ ← │ ↓ │ ↑ │ → │ ~ │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│CW │ 1 │ 2 │ 3 │ - │       │ ` │ ' │   │   │   │
-╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │⇧+⎋│⇧+␣│⇧+⏎│ │   │▐█▌│   │ ← on tap
-           │ ≢ │   │   │ │   │▐█▌│   │ ← on hold
+           ╭───┬───┬───╮ ╭───┬───┬───╮
+           │ ⎋ │ ␣ │ ⏎ │ │ ⏎ │ ⇥ │F16│ ← tap
+           │ ≡ │ ⇧ │ ⌃ │ │ ⌃ │ ⇪ │ ⌘ │ ← hold
            ╰───┴───┴───╯ ╰───┴───┴───╯
 ```
 
-| Symbol | Description | Symbol      | Description | Symbol      | Description |
-|--------|-------------|-------------|-------------|-------------|-------------|
-| `F16`  | Raycast     | `⌘␣`        | Spotlight   | `⇧` + `F16` | Emojis      |
+## Super
 
-### Super
-
-Left-hand shortcuts for one-handed use, perfect for when you're navigating with the mouse/trackpad or snacking on Cheetos.
-
-Only a few keys are mapped, as the rest are handled by OS-level bindings using Karabiner-Elements. You can view the [complete list here](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/README.md#super).
+Super is `Command+Option+Control` and provides one-handed browser/developer
+shortcuts. Holding it with Symbols produces Hyper in either press order.
 
 ```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│   │   │⌥⌘I│⇧⌘C│⌘\ │       │   │   │   │   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│   │⇧⌃⇥│⌘[ │⌘] │⌃⇥ │       │   │   │   │   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│   │   │   │   │   │       │   │   │   │   │   │
-╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │▐█▌│   │   │ │ ⌘ │ ⌥ │ ⌃ │ ← on tap (sticky)
-           │▐█▌│   │   │ │ ⊕ │ ≢ │ ƒ │ ← on hold
-           ╰───┴───┴───╯ ╰───┴───┴───╯
+╭───┬───┬───┬───┬───╮
+│   │   │⌥⌘I│⇧⌘C│⌘\ │
+├───┼───┼───┼───┼───┤
+│   │⇧⌃⇥│⌘[ │⌘] │⌃⇥ │
+├───┼───┼───┼───┼───┤
+│   │   │   │   │   │
+╰───┴───┴───┴───┴───╯
 ```
 
-#### Left side
+The developer and navigation shortcuts use their Control equivalents on the
+Winux base.
 
-**Debugger**
-- `⌥⌘I`: Toggle DevTools
-- `⇧⌘C`: Inspect element
-- `⌘\`: Pause/Resume script
-
-**Browser navigation**
-- `⇧⌃⇥` : Previous tab
-- `⌘[` : Back
-- `⌘]` : Forward
-- `⌃⇥`: Next tab
-
-### F-Keys
+## F-Keys
 
 ```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│F12│F7 │F8 │F9 │PRT│       │F12│F7 │F8 │F9 │PRT│
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│F11│F4 │F5 │F6 │LCK│       │F11│F4 │F5 │F6 │LCK│
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│F10│F1 │F2 │F3 │PAU│       │F10│F1 │F2 │F3 │PAU│
-╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │▐█▌│ ⇧ │   │ │   │ ⇧ │▐█▌│
-           ╰───┴───┴───╯ ╰───┴───┴───╯
+╭───┬───┬───┬───┬───╮       ╭────┬────┬────┬────┬───╮
+│F12│F7 │F8 │F9 │PRT│       │ V+ │ RW │PLAY│ FF │PRT│
+├───┼───┼───┼───┼───┤       ├────┼────┼────┼────┼───┤
+│F11│F4 │F5 │F6 │LCK│       │ V- │GAME│BASE│LPAD│LCK│
+├───┼───┼───┼───┼───┤       ├────┼────┼────┼────┼───┤
+│F10│F1 │F2 │F3 │PAU│       │MUTE│ B- │ B+ │MCTL│PAU│
+╰───┴───┴───┴───┴───╯       ╰────┴────┴────┴────┴───╯
 ```
 
-### Adjust
+## Adjust and Gamepad
 
-```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│TGL│DBG│RBT│EEC│BOT│       │   │   │   │   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│   │HUI│SAI│VAI│SPI│       │   │WIN│GAM│   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│MOD│HUD│SAD│VAD│SPD│       │   │   │   │   │   │
-╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │▐█▌│   │   │ │▐█▌│   │   │
-           ╰───┴───┴───╯ ╰───┴───┴───╯
-```
+Adjust contains firmware controls (debug, reboot, EEPROM clear, bootloader) and
+lighting controls when enabled. The F-Keys layer contains the persistent base
+toggle and the Gamepad toggle. Gamepad is a right-shifted QWERTY layer for FPS
+controls.
 
-### Winux
+## Physical verification checklist
 
-Swaps Ctrl and Gui keys for non-Mac systems.
+After flashing, test on both the macOS and Winux bases:
 
-```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│   │   │   │   │   │       │   │   │   │   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│   │   │   │   │   │       │   │   │   │   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│   │   │   │   │   │       │   │   │   │   │   │
-╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │   │   │ ⏎ │ │ ⏎ │   │F13│ ← on tap
-           │   │   │ ⌃ │ │ ⌃ │   │ ⌥ │ ← on hold
-           ╰───┴───┴───╯ ╰───┴───┴───╯
-```
-
-### Gaming
-
-Right-shifted QWERTY for FPS games using ESDF as arrow keys
-
-```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│ESC│ W │ ↑ │ R │ T │       │   │   │   │   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│ A │ ← │ ↓ │ → │ G │       │   │   │   │   │   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│ Z │ X │ C │ V │ B │       │   │   │   │   │   │
-╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │ ⇥ │ ␣ │ ⏎ │ │   │   │   │
-           ╰───┴───┴───╯ ╰───┴───┴───╯
-```
-
-## TODO
-- [ ] Migrate config for my corne keyboard
-<!-- - [ ] Reimplement [Bongocat](../../keyboards/adpenrose/akemipad/keymaps/oled_bongocat/readme.md) -->
+1. Tap and hold both accent keys; confirm the tap emits the expected dead key
+   and the hold shifts a following Symbols-layer key.
+2. Test `Symbols+Return` and `Symbols+Shift+Return`.
+3. Enter Hyper in both press orders, then release Symbols first and Super first;
+   the remaining key must keep only its own behavior.
+4. With Super pressed first, tap and hold Space. Release Space first once and
+   Super first once; no modifier or layer may remain latched.
+5. Toggle Caps Word with `Symbols+Z`, type letters, digits, underscore, and a
+   terminating key.
