@@ -247,7 +247,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     if (super_mod_active) {
                         tap_code_with_exact_mods(KC_F16, 0);
                     } else if (IS_LAYER_ON(_SYMBOLS)) {
-                        tap_code_with_exact_mods(KC_SPC, MOD_BIT(KC_LSFT));
+                        tap_code_with_exact_mods(KC_ENT, MOD_BIT(KC_LSFT));
                     } else {
                         return true;
                     }
