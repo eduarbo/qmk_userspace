@@ -248,11 +248,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                         tap_code_with_exact_mods(KC_F16, 0);
                     } else if (IS_LAYER_ON(_SYMBOLS)) {
                         tap_code_with_exact_mods(KC_ENT, MOD_BIT(KC_LSFT));
+                    } else if (is_mac_base() && (mods & MOD_BIT(KC_RGUI))) {
+                        // Match Left Command+Space without leaking Right Command into the tap.
+                        tap_code_with_exact_mods(KC_ENT, MOD_BIT(KC_LSFT));
                     } else {
                         return true;
                     }
                 }
-                if (super_mod_active || IS_LAYER_ON(_SYMBOLS)) {
+                if (super_mod_active || IS_LAYER_ON(_SYMBOLS) ||
+                    (is_mac_base() && (mods & MOD_BIT(KC_RGUI)))) {
                     return false;
                 }
             } else if (record->event.pressed) {
