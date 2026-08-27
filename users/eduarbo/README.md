@@ -62,10 +62,10 @@ is called out explicitly:
 | --- | --- | --- |
 | `Symbols+A` | macOS: `Option+E`; Winux: `Right Alt+E` | `A` is Shift while held, without leaving Symbols |
 | `Symbols+;` | macOS: `Option+N`; Winux: `Right Alt+N` | `;` is Shift while held, without leaving Symbols |
-| `Symbols+Space` | `Shift+Return` | Space remains Shift while held |
+| `Symbols+Space` | `Left Shift+Space` | Space remains Left Shift while held |
 | `Right Command+Space` (macOS) | `Shift+Return` | Mirrors `Left Command+Space` without leaving Right Command latched |
-| `Symbols+Return` | `Shift+Return` | Existing Symbols behavior is preserved |
-| `Symbols+Shift+Return` | macOS: `Command+Return`; Winux: `Control+Return` | Shift is removed only for the emitted chord and then restored |
+| `Symbols+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Return remains Right Command or Right Control while held |
+| `Symbols+Shift+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Same tap result as `Symbols+Return`; Shift is removed only for the emitted chord and then restored |
 | `Symbols+Super` or `Super+Symbols` | Hyper (`Shift+Command+Option+Control`) | Momentary in both press orders; releasing either key restores only the key still held |
 | `Super+Space` | `F16` | With Super pressed first, holding Space enters F-Keys; either release order restores Super or the right Fn modifier correctly |
 
@@ -169,9 +169,10 @@ After flashing, test on both the macOS and Winux bases:
 
 1. Tap and hold both accent keys; confirm the tap emits the expected dead key
    and the hold shifts a following Symbols-layer key.
-2. Test `Symbols+Space`, `Right Command+Space` on macOS, `Symbols+Return`, and
-   `Symbols+Shift+Return`. Confirm each tap result, then release every key and
-   verify that no modifier remains latched.
+2. Test tap and hold for `Symbols+Space` and `Symbols+Return` on both bases, plus
+   `Right Command+Space` on macOS and `Symbols+Shift+Return`. Release Symbols
+   and each thumb in both orders; verify the exact tap result, rollover behavior,
+   restored one-shot modifiers, and that no modifier remains latched.
 3. Enter Hyper in both press orders, then release Symbols first and Super first;
    the remaining key must keep only its own behavior.
 4. With Super pressed first, tap and hold Space. Release Space first once and

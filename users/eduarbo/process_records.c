@@ -184,9 +184,7 @@ static void release_source_from_fn(void) {
  */
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     const uint8_t mods             = get_mods();
-    const uint8_t weak_mods        = get_weak_mods();
     const uint8_t os_mods          = get_oneshot_mods();
-    const uint8_t effective_mods   = mods | weak_mods | os_mods;
     const bool    super_mod_active = !hyper_state.active && !super_fn_state.active && (mods & SUPER_MOD) == SUPER_MOD && !(mods & MOD_MASK_SHIFT);
 
     switch (keycode) {
@@ -247,7 +245,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     if (super_mod_active) {
                         tap_code_with_exact_mods(KC_F16, 0);
                     } else if (IS_LAYER_ON(_SYMBOLS)) {
-                        tap_code_with_exact_mods(KC_ENT, MOD_BIT(KC_LSFT));
+                        tap_code_with_exact_mods(KC_SPC, MOD_BIT(KC_LSFT));
                     } else if (is_mac_base() && (mods & MOD_BIT(KC_RGUI))) {
                         // Match Left Command+Space without leaking Right Command into the tap.
                         tap_code_with_exact_mods(KC_ENT, MOD_BIT(KC_LSFT));
@@ -399,11 +397,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                             set_oneshot_mods(os_mods | MOD_BIT(KC_RGUI));
                         }
                     } else if (IS_LAYER_ON(_SYMBOLS)) {
-                        if (effective_mods & MOD_MASK_SHIFT) {
-                            tap_code_with_exact_mods(KC_ENT, is_mac_base() ? MOD_BIT(KC_LGUI) : MOD_BIT(KC_LCTL));
-                        } else {
-                            tap_code_with_exact_mods(KC_ENT, MOD_BIT(KC_LSFT));
-                        }
+                        tap_code_with_exact_mods(KC_ENT, is_mac_base() ? MOD_BIT(KC_LGUI) : MOD_BIT(KC_LCTL));
                     } else {
                         return true;
                     }
