@@ -5,6 +5,11 @@ on: [push, workflow_dispatch]
 permissions:
   contents: write
 
+# Runs replace the shared `latest` release, so never let two overlap.
+concurrency:
+  group: release-latest
+  cancel-in-progress: false
+
 jobs:
   build:
     name: 'QMK Userspace Build'
@@ -16,5 +21,7 @@ jobs:
   publish:
     name: 'QMK Userspace Publish'
     uses: qmk/.github/.github/workflows/qmk_userspace_publish.yml@main
-    if: always() && !cancelled()
+    # Publish only complete builds: the reusable publish job deletes `latest`
+    # first, so a partial build would drop the firmware that failed to compile.
+    if: needs.build.result == 'success'
     needs: build

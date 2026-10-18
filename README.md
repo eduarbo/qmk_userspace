@@ -15,7 +15,8 @@ in [the userspace documentation](users/eduarbo/README.md).
 
 `qmk.json` is the authoritative build matrix, and `qmk userspace-compile`
 compiles both targets. The included GitHub Actions workflow uses the same matrix
-on pushes after workflows have been enabled for this fork. A successful build
+on manual runs, and on pushes after workflows have been enabled for this fork. It
+replaces the `latest` release only when every target builds. A successful build
 verifies that the shared userspace compiles for both boards; flashing and a
 physical key test are still required before treating a behavior change as
 hardware-verified.
