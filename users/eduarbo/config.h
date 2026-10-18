@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// Use custom magic number so that when switching branches, EEPROM always gets reset
+// Custom EEPROM magic number. Changing it re-initializes EEPROM once on the next boot.
 #define EECONFIG_MAGIC_NUMBER (uint16_t)0x1339
 
 #ifdef OLED_ENABLE
@@ -47,8 +47,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // how long before a key press becomes a hold
 #define TAPPING_TERM 250
-// how many taps before triggering the toggle
-#define TAPPING_TOGGLE 3
 // remove the auto-repeat ability and activate the hold function instead when tapping twice quickly
 #define QUICK_TAP_TERM 0
 

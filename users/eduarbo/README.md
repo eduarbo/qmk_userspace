@@ -16,7 +16,7 @@ does the same on pushes after workflows have been enabled for this fork.
 
 The AVR-based CRKBD keeps its OLED and custom animations. RGB Matrix is
 explicitly disabled in its keymap to fit the firmware size limit. The verified
-build uses about 98% of available flash, so every userspace change must compile
+build uses about 97% of available flash, so every userspace change must compile
 both targets before it is accepted.
 
 ## How to build and flash
@@ -53,6 +53,14 @@ qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-left
 qmk compile -kb crkbd/rev1 -km eduarbo
 ```
 
+Both boards use `EE_HANDS`, so each half stores its side in EEPROM. Flash each
+Corne half with its handedness target:
+
+```sh
+qmk flash -kb crkbd/rev1 -km eduarbo -bl avrdude-split-left
+qmk flash -kb crkbd/rev1 -km eduarbo -bl avrdude-split-right
+```
+
 ## Behavior contract
 
 The following chords are shared with the Karabiner layout unless a difference
@@ -63,15 +71,19 @@ is called out explicitly:
 | `Symbols+A` | macOS: `Option+E`; Winux: `Right Alt+E` | `A` is Shift while held, without leaving Symbols |
 | `Symbols+;` | macOS: `Option+N`; Winux: `Right Alt+N` | `;` is Shift while held, without leaving Symbols |
 | `Symbols+Space` | `Left Shift+Space` | Space remains Left Shift while held |
-| `Right Command+Space` (macOS) | `Shift+Return` | Mirrors `Left Command+Space` without leaving Right Command latched |
+| `Right Command+Space` (macOS) | `Shift+Return` | QMK only: holding a Return thumb and tapping Space gives the same result as the opposite order, without leaving Right Command latched. Karabiner keeps `Command+Space` (Spotlight) on the built-in keyboard |
 | `Symbols+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Return remains Right Command or Right Control while held |
 | `Symbols+Shift+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Same tap result as `Symbols+Return`; Shift is removed only for the emitted chord and then restored |
 | `Symbols+Super` or `Super+Symbols` | Hyper (`Shift+Command+Option+Control`) | Momentary in both press orders; releasing either key restores only the key still held |
 | `Super+Space` | `F16` | With Super pressed first, holding Space enters F-Keys; either release order restores Super or the right Fn modifier correctly |
 
-`Symbols+Z` uses QMK's native Caps Word. This is the one deliberate runtime
-difference: Karabiner emits Caps Lock there because it has no native Caps Word
-state machine.
+`Symbols+Z` uses QMK's native Caps Word, while Karabiner emits Caps Lock there
+because it has no native Caps Word state machine. The userspace narrows the gap:
+letters are shifted, while digits, `-`, `'`, `;`, `` ` ``, Backspace and Delete
+continue Caps Word unshifted, as they would with Caps Lock.
+
+Deliberate QMK/Karabiner differences are limited to Caps Word and the
+`Right Command+Space` chord above.
 
 Super plus a right thumb key can still emit the corresponding one-shot modifier
 on tap. That QMK convenience is separate from Hyper: the Hyper chord itself is
@@ -95,8 +107,10 @@ The accent keys are Shift mod-taps: tap for the dead key, hold for Shift.
 
 ## Base layers
 
-The base is selected persistently with `TG_BASE` on Adjust. It is not detected
-from the operating system at boot.
+The keyboard always boots into the macOS base. `TG_BASE` on Adjust switches
+between macOS and Winux for the current session only; unplugging and
+reconnecting the keyboard restores macOS. QMK OS detection stays disabled because
+USB hubs made it report macOS as Windows.
 
 ### macOS base
 
@@ -131,17 +145,21 @@ Super is `Command+Option+Control` and provides one-handed browser/developer
 shortcuts. Holding it with Symbols produces Hyper in either press order.
 
 ```text
-╭───┬───┬───┬───┬───╮
-│   │   │⌥⌘I│⇧⌘C│⌘\ │
-├───┼───┼───┼───┼───┤
-│   │⇧⌃⇥│⌘[ │⌘] │⌃⇥ │
-├───┼───┼───┼───┼───┤
-│   │   │   │   │   │
-╰───┴───┴───┴───┴───╯
+╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
+│⇧⌘3│MIC│⌥⌘I│⇧⌘C│⌘\ │       │SND│1PW│GPT│CLP│   │
+├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+│⇧⌘4│⇧⌃⇥│⌘[ │⌘] │⌃⇥ │       │W←½│WNS│WTM│W→½│WGR│
+├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
+│⇧⌘5│⌃↓ │⌘` │⌘⇥ │⌃↑ │       │   │EMJ│SNP│UAC│   │
+╰───┴───┴───┴───┴───╯       ╰───┴───┴───┴───┴───╯
 ```
 
-The developer and navigation shortcuts use their Control equivalents on the
-Winux base.
+QMK emits `E`, `R`, `T`, `S`, `D`, `F` and `G` itself; the developer and
+navigation shortcuts use their Control equivalents on the Winux base. `Q`, `A`,
+`Z`, `X`, `C`, `V` and `B` are remapped by Karabiner's SUPER layer, which applies
+to external keyboards on purpose. `MIC` and the right-hand bindings are app
+hotkeys on `Super+key`. Without Karabiner (for example on a Winux host), those
+keys reach the host as plain `Super+key`.
 
 ## F-Keys
 
@@ -149,19 +167,36 @@ Winux base.
 ╭───┬───┬───┬───┬───╮       ╭────┬────┬────┬────┬───╮
 │F12│F7 │F8 │F9 │PRT│       │ V+ │ RW │PLAY│ FF │PRT│
 ├───┼───┼───┼───┼───┤       ├────┼────┼────┼────┼───┤
-│F11│F4 │F5 │F6 │LCK│       │ V- │GAME│BASE│LPAD│LCK│
+│F11│F4 │F5 │F6 │LCK│       │ V- │ V- │MUTE│ V+ │LCK│
 ├───┼───┼───┼───┼───┤       ├────┼────┼────┼────┼───┤
 │F10│F1 │F2 │F3 │PAU│       │MUTE│ B- │ B+ │MCTL│PAU│
 ╰───┴───┴───┴───┴───╯       ╰────┴────┴────┴────┴───╯
 ```
 
+F-Keys matches the Karabiner FN layer key for key. Reach it by holding Super and
+then Space, or Super and the right Fn thumb.
+
 ## Adjust and Gamepad
 
-Adjust contains firmware controls (debug, reboot, EEPROM clear, bootloader) and
-lighting controls when enabled. The F-Keys layer contains the persistent base
-toggle and the Gamepad toggle. Gamepad is a right-shifted QWERTY layer for FPS
-controls. RGB Matrix controls do not affect the CRKBD build because that feature
-is disabled there to preserve flash for OLED and the shared layout behavior.
+Hold Super and a Return thumb, in either order, to reach Adjust. In Gamepad, hold
+Left Alt and the right Return thumb instead.
+
+```text
+╭───┬───┬───┬───┬───╮       ╭───┬────┬────┬───┬───╮
+│   │DBG│RBT│EEC│BOT│       │   │    │    │   │   │
+├───┼───┼───┼───┼───┤       ├───┼────┼────┼───┼───┤
+│   │   │   │   │   │       │   │GAME│BASE│   │   │
+├───┼───┼───┼───┼───┤       ├───┼────┼────┼───┼───┤
+│   │   │   │   │   │       │   │    │    │   │   │
+╰───┴───┴───┴───┴───╯       ╰───┴────┴────┴───┴───╯
+```
+
+`DBG` toggles debug, `RBT` reboots, `EEC` clears EEPROM and `BOT` enters the
+bootloader. Lighting controls fill the empty left keys only on builds with RGB
+Matrix or RGB Light enabled; neither current target enables them. `BASE` is the
+session-only macOS/Winux toggle described above, and `GAME` toggles Gamepad, a
+right-shifted QWERTY layer for FPS controls. Both toggles live on Adjust instead
+of F-Keys so that volume and brightness keys cannot change the layout.
 
 ## Physical verification checklist
 
@@ -177,5 +212,8 @@ After flashing, test on both the macOS and Winux bases:
    the remaining key must keep only its own behavior.
 4. With Super pressed first, tap and hold Space. Release Space first once and
    Super first once; no modifier or layer may remain latched.
-5. Toggle Caps Word with `Symbols+Z`, type letters, digits, underscore, and a
-   terminating key.
+5. Toggle Caps Word with `Symbols+Z`, type letters, digits, `-`, underscore,
+   and a terminating key; `-` must stay a hyphen.
+6. On F-Keys, confirm `J`/`K`/`L` send Volume Down, Mute and Volume Up.
+7. Toggle `BASE` on Adjust, confirm the Winux base is active, then unplug and
+   reconnect the keyboard: the macOS base must be active again.

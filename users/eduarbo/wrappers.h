@@ -59,7 +59,7 @@ NOTE: These are all the same length.  If you do a search/replace
 #define _________________F_KEYS_L3_________________     KC_F10,  KC_F1,   KC_F2,   KC_F3,   KC_PAUS
 
 #define _________________F_KEYS_R1_________________     KC_VOLU, KC_MRWD, KC_MPLY, KC_MFFD, KC_PSCR
-#define _________________F_KEYS_R2_________________     KC_VOLD, TG_GAME, TG_BASE, KC_LPAD, KC_SCRL
+#define _________________F_KEYS_R2_________________     KC_VOLD, KC_VOLD, KC_MUTE, KC_VOLU, KC_SCRL
 #define _________________F_KEYS_R3_________________     KC_MUTE, KC_BRID, KC_BRIU, KC_MCTL, KC_PAUS
 
 #if defined(RGB_MATRIX_ENABLE)
@@ -77,7 +77,7 @@ NOTE: These are all the same length.  If you do a search/replace
 #endif
 
 #define _________________ADJUST_R1_________________     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-#define _________________ADJUST_R2_________________     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+#define _________________ADJUST_R2_________________     XXXXXXX, TG_GAME, TG_BASE, XXXXXXX, XXXXXXX
 #define _________________ADJUST_R3_________________     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 #define _________________GAMEPAD_L1________________     KC_ESC,  KC_W,    KC_UP,   KC_R,    KC_T

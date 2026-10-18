@@ -6,7 +6,6 @@
 #include QMK_KEYBOARD_H
 
 #include "wrappers.h"
-#include "callbacks.h"
 #include "process_records.h"
 
 #ifdef OLED_ENABLE

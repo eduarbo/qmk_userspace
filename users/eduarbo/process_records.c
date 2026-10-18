@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "eduarbo.h"
-#include "version.h"
 
 typedef enum {
     SUPER_FN_NONE,
@@ -189,15 +188,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
         case TG_BASE:
+            // Session-only switch: keyboard_post_init_user() restores macOS on every boot.
             if (record->event.pressed) {
-                if (get_highest_layer(default_layer_state) == _BASE_MAC) {
-                    set_single_persistent_default_layer(_BASE);
-                } else {
-                    set_single_persistent_default_layer(_BASE_MAC);
-                }
-                return false;
+                set_single_default_layer(is_mac_base() ? _BASE : _BASE_MAC);
             }
-            break;
+            return false;
 
         case ACUTE_LSFT:
         case TILDE_LSFT:
@@ -230,12 +225,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     register_code(KC_LSFT);
                     return false;
                 }
-            }
-            break;
-
-        case VRSN: // Prints firmware version
-            if (record->event.pressed) {
-                send_string_with_delay_P(PSTR(QMK_KEYBOARD "/" QMK_KEYMAP " @ " QMK_VERSION ", Built on: " QMK_BUILDDATE), TAP_CODE_DELAY);
             }
             break;
 

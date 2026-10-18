@@ -4,8 +4,7 @@
 #pragma once
 
 enum userspace_custom_keycodes {
-    VRSN = SAFE_RANGE,
-    TG_BASE,
+    TG_BASE = SAFE_RANGE,
 };
 
 #define SUPER_MOD (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL))
@@ -38,12 +37,10 @@ enum userspace_custom_keycodes {
 #define MAC_GO_BACK G(KC_LBRC)
 #define MAC_GO_FWD  G(KC_RBRC)
 
-// FIXME Even that I'm re-binding the key on Tap with process_record_user() to
-// an advanced keycode, I use Mod-Tap here because I wasn't able to intercept
-// the key if I used a basic keycode instead
-#define F16_RCTL MT(MOD_RCTL, KC_ESC)
-#define F16_RGUI MT(MOD_RGUI, KC_ESC)
+// Right Fn thumb: F16 on tap, right modifier on hold. process_record_user()
+// handles the tap so Super can turn it into a one-shot modifier instead.
+#define F16_RCTL MT(MOD_RCTL, KC_F16)
+#define F16_RGUI MT(MOD_RGUI, KC_F16)
 
 #define TG_GAME TG(_GAMEPAD)
 
-#define TG_MODS OS_TOGG

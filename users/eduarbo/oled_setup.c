@@ -50,7 +50,7 @@ void render_layer_state(void) {
             oled_write_P(PSTR("F-KEY"), false);
             break;
         case _BASE:
-            oled_write_P(PSTR("BASE"), false);
+            oled_write_P(PSTR("WINUX"), false);
             break;
         case _BASE_MAC:
             oled_write_P(PSTR("MACOS"), false);

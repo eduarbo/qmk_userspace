@@ -1,3 +1,4 @@
+SRC += eduarbo.c
 SRC += process_records.c
 
 CAPS_WORD_ENABLE ?= yes

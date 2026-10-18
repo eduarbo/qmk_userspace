@@ -3,6 +3,13 @@
 
 #include "eduarbo.h"
 
+// Always boot into the macOS base. TG_BASE only switches the base for the
+// current session, so reconnecting the keyboard restores macOS even when an
+// older firmware left another default layer in EEPROM.
+void keyboard_post_init_user(void) {
+    set_single_default_layer(_BASE_MAC);
+}
+
 #if defined(CAPS_WORD_ENABLE)
 // Define custom Caps Word continuity characters
 bool caps_word_press_user(uint16_t keycode) {
