@@ -16,7 +16,7 @@ does the same on pushes after workflows have been enabled for this fork.
 
 The AVR-based CRKBD keeps its OLED and custom animations. RGB Matrix is
 explicitly disabled in its keymap to fit the firmware size limit. The verified
-build uses about 97% of available flash, so every userspace change must compile
+build uses about 96% of available flash, so every userspace change must compile
 both targets before it is accepted.
 
 ## How to build and flash
@@ -82,7 +82,7 @@ is called out explicitly:
 | `Symbols+A` | macOS: `Option+E`; Winux: `Right Alt+E` | `A` is Shift while held, without leaving Symbols |
 | `Symbols+;` | macOS: `Option+N`; Winux: `Right Alt+N` | `;` is Shift while held, without leaving Symbols |
 | `Symbols+Space` | `Left Shift+Space` | Space remains Left Shift while held |
-| `Right Command+Space` (macOS) | `Shift+Return` | Holding a Return thumb and tapping Space gives the same result as the opposite order, without leaving Right Command latched. Karabiner maps Space hold + Left Command tap the same way |
+| Return thumb held + `Space` tap | macOS: `Command+Space`; Winux: `Control+Space` | Plain modifier chord, as on the built-in keyboard |
 | `Symbols+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Return remains Right Command or Right Control while held |
 | `Symbols+Shift+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Same tap result as `Symbols+Return`; Shift is removed only for the emitted chord and then restored |
 | `Symbols+Super` or `Super+Symbols` | Hyper (`Right Shift+Command+Option+Control`, as in Karabiner) | Momentary in both press orders; releasing either key restores only the key still held |
@@ -218,7 +218,8 @@ After flashing, test on both the macOS and Winux bases:
 1. Tap and hold both accent keys; confirm the tap emits the expected dead key
    and the hold shifts a following Symbols-layer key.
 2. Test tap and hold for `Symbols+Space` and `Symbols+Return` on both bases, plus
-   `Right Command+Space` on macOS and `Symbols+Shift+Return`. Release Symbols
+   `Symbols+Shift+Return`; holding a Return thumb and tapping Space must open
+   Spotlight on macOS. Release Symbols
    and each thumb in both orders; verify the exact tap result, rollover behavior,
    restored one-shot modifiers, and that no modifier remains latched.
 3. Enter Hyper in both press orders, then release Symbols first and Super first;
