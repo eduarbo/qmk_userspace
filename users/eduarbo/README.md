@@ -32,6 +32,16 @@ qmk config user.overlay_dir="$(realpath .)"
 
 Run the overlay command from the root of this userspace checkout.
 
+Without a global `qmk` install, run the CLI through `uv` with the QMK toolchains
+checkout on the `PATH`, from the root of this userspace checkout:
+
+```sh
+export PATH="$HOME/dev/eduarbo/qmk_toolchains/bin:$PATH" QMK_HOME=~/dev/eduarbo/qmk_firmware
+uvx --from qmk==1.2.0 qmk userspace-compile
+```
+
+Prefix any `qmk` command below with `uvx --from qmk==1.2.0` the same way.
+
 ### Build every configured target
 
 ```sh
@@ -40,11 +50,12 @@ qmk userspace-compile
 
 ### Piantor split UF2 images
 
-Put the appropriate half in bootloader mode, then build the matching image:
+Run the command for each half, then put that half in bootloader mode; the CLI
+waits for the `RPI-RP2` drive and copies the image with its handedness:
 
 ```sh
-qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-right
-qmk compile -kb beekeeb/piantor -km eduarbo -t uf2-split-left
+qmk flash -kb beekeeb/piantor -km eduarbo -bl uf2-split-left
+qmk flash -kb beekeeb/piantor -km eduarbo -bl uf2-split-right
 ```
 
 ### Corne (CRKBD rev1)
@@ -71,10 +82,10 @@ is called out explicitly:
 | `Symbols+A` | macOS: `Option+E`; Winux: `Right Alt+E` | `A` is Shift while held, without leaving Symbols |
 | `Symbols+;` | macOS: `Option+N`; Winux: `Right Alt+N` | `;` is Shift while held, without leaving Symbols |
 | `Symbols+Space` | `Left Shift+Space` | Space remains Left Shift while held |
-| `Right Command+Space` (macOS) | `Shift+Return` | QMK only: holding a Return thumb and tapping Space gives the same result as the opposite order, without leaving Right Command latched. Karabiner keeps `Command+Space` (Spotlight) on the built-in keyboard |
+| `Right Command+Space` (macOS) | `Shift+Return` | Holding a Return thumb and tapping Space gives the same result as the opposite order, without leaving Right Command latched. Karabiner maps Space hold + Left Command tap the same way |
 | `Symbols+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Return remains Right Command or Right Control while held |
 | `Symbols+Shift+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Same tap result as `Symbols+Return`; Shift is removed only for the emitted chord and then restored |
-| `Symbols+Super` or `Super+Symbols` | Hyper (`Shift+Command+Option+Control`) | Momentary in both press orders; releasing either key restores only the key still held |
+| `Symbols+Super` or `Super+Symbols` | Hyper (`Right Shift+Command+Option+Control`, as in Karabiner) | Momentary in both press orders; releasing either key restores only the key still held |
 | `Super+Space` | `F16` | With Super pressed first, holding Space enters F-Keys; either release order restores Super or the right Fn modifier correctly |
 
 `Symbols+Z` uses QMK's native Caps Word, while Karabiner emits Caps Lock there
@@ -82,8 +93,10 @@ because it has no native Caps Word state machine. The userspace narrows the gap:
 letters are shifted, while digits, `-`, `'`, `;`, `` ` ``, Backspace and Delete
 continue Caps Word unshifted, as they would with Caps Lock.
 
-Deliberate QMK/Karabiner differences are limited to Caps Word and the
-`Right Command+Space` chord above.
+Caps Word is the only deliberate QMK/Karabiner difference. Both sides use a
+250 ms tap window (`TAPPING_TERM` here, `to_if_alone_timeout` in Karabiner). Running
+`npm test` in `dotfiles/macos/karabiner` compares the base, Symbols and F-Keys layers
+in `wrappers.h` with Karabiner, so run it after changing either side.
 
 Super plus a right thumb key can still emit the corresponding one-shot modifier
 on tap. That QMK convenience is separate from Hyper: the Hyper chord itself is

@@ -32,5 +32,7 @@ qmk config user.overlay_dir="$(realpath .)"
 qmk userspace-compile
 ```
 
+The userspace guide also covers building without a global `qmk` install.
+
 Piantor split UF2 images can be built explicitly with the commands documented
 in [the userspace guide](users/eduarbo/README.md#how-to-build-and-flash).

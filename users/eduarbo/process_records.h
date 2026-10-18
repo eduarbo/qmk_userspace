@@ -8,7 +8,8 @@ enum userspace_custom_keycodes {
 };
 
 #define SUPER_MOD (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL))
-#define HYPER_MOD (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT))
+// Right Shift matches the Karabiner Hyper layer.
+#define HYPER_MOD (MOD_BIT(KC_LGUI) | MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_RSFT))
 
 #define ACUTE_LSFT MT(MOD_LSFT, KC_E)
 #define TILDE_LSFT MT(MOD_LSFT, KC_N)
