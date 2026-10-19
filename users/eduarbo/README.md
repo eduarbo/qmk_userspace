@@ -7,8 +7,9 @@ Both boards build from this userspace with the same keymap.
 
 - **Thumbs do double duty:** tap for a key, hold for a modifier or a layer.
 - **Always boots into macOS:** Winux is a per-session switch, and reconnecting restores macOS.
-- **Parity is tested:** `npm test` in `dotfiles/macos/karabiner` checks the base, Symbols and
-  F-Keys layers against [`wrappers.h`](wrappers.h).
+- **Same as the MacBook:** Karabiner shares these layers and the 250 ms tap window, and
+  `npm test` in `dotfiles/macos/karabiner` checks the base, Symbols and F-Keys layers
+  against [`wrappers.h`](wrappers.h).
 
 ## Layers
 
@@ -20,8 +21,7 @@ Highlighted keys are held to reach the layer; dimmed keys fall through to the ba
 
 ### Winux base
 
-The same keys with Control and GUI swapped on the thumbs. Switch with **macOS ⇄ Winux**
-on Adjust.
+Switch to it with **macOS ⇄ Winux** on Adjust.
 
 ![Winux base layer](../../docs/layers/winux.svg)
 
@@ -29,10 +29,7 @@ on Adjust.
 
 ![Symbols layer](../../docs/layers/symbols.svg)
 
-- `´` and `˜` tap the dead keys (`Option+E`/`Option+N`, or `Right Alt` on Winux). Held, they
-  act as Shift without leaving the layer.
-- Shift turns PgUp and PgDn into Home and End.
-- Thumb taps add a modifier: `⇧ Esc`, `⇧ Space` and `⌘ Return` (`Ctrl+Return` on Winux).
+On Winux the accents use `Right Alt` and `⌘ Return` becomes `Ctrl+Return`.
 
 ### Super · hold Esc
 
@@ -40,14 +37,12 @@ Super is `⌘⌥⌃`. The small legend shows the shortcut each key sends.
 
 ![Super layer](../../docs/layers/super.svg)
 
-- QMK sends `E`, `R`, `T`, `S`, `D`, `F` and `G` itself, as Control shortcuts on Winux.
-  Karabiner maps `Q`, `A`, `Z`, `X`, `C`, `V` and `B`, and
-  [Hammerspoon](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon), Raycast and
-  the Gemini app bind the right hand, so those need macOS with the dotfiles installed.
+- `E`, `R`, `T`, `S`, `D`, `F` and `G` come from the firmware and send Control shortcuts on
+  Winux. The other keys need macOS with my
+  [dotfiles](https://github.com/eduarbo/dotfiles) installed.
 - **Hyper** (`⌘⌥⌃⇧`): hold Super and Symbols in either order. Every key tapped while both
   are held gets Hyper; releasing one leaves only the other. Hammerspoon uses it to
   [launch apps](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher).
-- Tapping a Return, Tab or Fn thumb sends its modifier once (one-shot).
 
 ### F-Keys · hold Super, then Space or the right Fn thumb
 
@@ -59,8 +54,6 @@ Key for key the same as the Karabiner FN layer.
 
 ![Adjust layer](../../docs/layers/adjust.svg)
 
-- **macOS ⇄ Winux** switches the base until the keyboard is reconnected.
-- **Gamepad** toggles the gaming layer.
 - **Bootloader** prepares the half for flashing, so you don't need the BOOTSEL button.
 - **Clear settings** erases the EEPROM. On the Piantor that includes which side the half
   is, so reflash it with its `-left` or `-right` target afterwards.
@@ -69,14 +62,13 @@ Key for key the same as the Karabiner FN layer.
 
 ![Gamepad layer](../../docs/layers/gamepad.svg)
 
-The arrows sit where WASD would be, shifted one column right. To leave, hold Alt and the
-right Return thumb to reach Adjust, then tap **Gamepad**.
+To leave, hold Alt and the right Return thumb to reach Adjust, then tap **Gamepad**.
 
 ### Caps Word
 
 `Symbols+Z` turns on QMK Caps Word. Letters are capitalized, while digits, `-`, `'`, `;`, `` ` ``,
 Backspace and Delete continue it unshifted, as with Caps Lock. It is the only deliberate
-difference from Karabiner, which sends Caps Lock. Both sides use a 250 ms tap window.
+difference from Karabiner, which sends Caps Lock.
 
 ## Why it looks like this
 
