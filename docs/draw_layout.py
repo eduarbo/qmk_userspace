@@ -165,7 +165,9 @@ def main() -> None:
             "shrink_wide_legends": 6,
             "append_colon_to_layer_header": False,
             "style_layer_activators": False,
-            "svg_extra_style": "svg.keymap { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }",
+            "outer_pad_h": 20,
+            # The README headings name each layer, so hide the drawn header.
+            "svg_extra_style": "svg.keymap { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; } text.label { display: none; }",
         },
         "layers": layers,
     }
