@@ -38,7 +38,7 @@ static uint8_t gamepad_alt_fkeys_restore_mod;
 
 static struct {
     bool    active;
-    uint8_t weak_mods_added;
+    uint8_t mods_added;
 } hyper_state;
 
 static struct {
@@ -104,25 +104,23 @@ static void tap_code_with_exact_mods(uint16_t keycode, uint8_t mods) {
 }
 
 static void enter_hyper(void) {
-    const uint8_t weak_mods = get_weak_mods();
-
     super_event_owned   = true;
     symbols_event_owned = true;
 
     unregister_mods(SUPER_MOD);
     layer_off(_SYMBOLS);
 
-    hyper_state.weak_mods_added = HYPER_MOD & ~weak_mods;
-    add_weak_mods(hyper_state.weak_mods_added);
-    send_keyboard_report();
+    // Real mods, not weak mods: QMK clears weak mods on every key press, so Hyper
+    // would only reach the first key tapped while Super and Symbols stay held.
+    hyper_state.mods_added = HYPER_MOD & ~get_mods();
+    register_mods(hyper_state.mods_added);
     hyper_state.active = true;
 }
 
 static void leave_hyper(void) {
-    del_weak_mods(hyper_state.weak_mods_added);
-    send_keyboard_report();
-    hyper_state.weak_mods_added = 0;
-    hyper_state.active          = false;
+    unregister_mods(hyper_state.mods_added);
+    hyper_state.mods_added = 0;
+    hyper_state.active     = false;
 
     if (super_key_held) {
         register_mods(SUPER_MOD);

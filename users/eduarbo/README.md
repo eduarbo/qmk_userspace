@@ -85,7 +85,7 @@ is called out explicitly:
 | Return thumb held + `Space` tap | macOS: `Command+Space`; Winux: `Control+Space` | Plain modifier chord, as on the built-in keyboard |
 | `Symbols+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Return remains Right Command or Right Control while held |
 | `Symbols+Shift+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Same tap result as `Symbols+Return`; Shift is removed only for the emitted chord and then restored |
-| `Symbols+Super` or `Super+Symbols` | Hyper (`Right Shift+Command+Option+Control`, as in Karabiner) | Momentary in both press orders; releasing either key restores only the key still held |
+| `Symbols+Super` or `Super+Symbols` | Hyper (`Right Shift+Command+Option+Control`, as in Karabiner) | Momentary in both press orders and applies to every key tapped while held; releasing either key restores only the key still held |
 | `Super+Space` | `F16` | With Super pressed first, holding Space enters F-Keys; either release order restores Super or the right Fn modifier correctly |
 
 `Symbols+Z` uses QMK's native Caps Word, while Karabiner emits Caps Lock there
@@ -222,8 +222,9 @@ After flashing, test on both the macOS and Winux bases:
    Spotlight on macOS. Release Symbols
    and each thumb in both orders; verify the exact tap result, rollover behavior,
    restored one-shot modifiers, and that no modifier remains latched.
-3. Enter Hyper in both press orders, then release Symbols first and Super first;
-   the remaining key must keep only its own behavior.
+3. Enter Hyper in both press orders and tap several keys while holding it; every
+   key must carry Hyper. Then release Symbols first and Super first; the
+   remaining key must keep only its own behavior.
 4. With Super pressed first, tap and hold Space. Release Space first once and
    Super first once; no modifier or layer may remain latched.
 5. Toggle Caps Word with `Symbols+Z`, type letters, digits, `-`, underscore,
