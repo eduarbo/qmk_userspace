@@ -48,11 +48,11 @@ LABELS = {
 
 # Super is a chord, not a QMK layer: QMK emits E/R/T/S/D/F/G (process_records.c),
 # Karabiner's superLayer.ts maps Q/A/Z/X/C/V/B, and the right hand is bound by
-# Hammerspoon and Raycast (dotfiles macos/hammerspoon/config/bindings.lua).
+# Hammerspoon, Raycast and the Gemini app (dotfiles macos/hammerspoon/config/bindings.lua).
 SUPER = [
     {"t": "Screen\nshot", "s": "⇧⌘3"}, "", {"t": "Dev\nTools", "s": "⌥⌘I"},
     {"t": "Inspect", "s": "⇧⌘C"}, {"t": "Pause\nJS", "s": "⌘\\"},
-    "Sound\noutput", "Bitwarden", "Gemini", "Clipboard", "",
+    "Sound\noutput", "Bitwarden", "Mini\nGemini", "Clipboard", "",
     {"t": "Area\nshot", "s": "⇧⌘4"}, {"t": "Prev\ntab", "s": "⇧⌃⇥"}, {"t": "Back", "s": "⌘["},
     {"t": "Forward", "s": "⌘]"}, {"t": "Next\ntab", "s": "⌃⇥"},
     "Window\n←½", "Next\nscreen", "Maximize", "Window\n→½", "Window\ngrid",
