@@ -41,10 +41,12 @@ Super is `⌘⌥⌃`. The small legend shows the shortcut each key sends.
 ![Super layer](../../docs/layers/super.svg)
 
 - QMK sends `E`, `R`, `T`, `S`, `D`, `F` and `G` itself, as Control shortcuts on Winux.
-  Karabiner maps `Q`, `A`, `Z`, `X`, `C`, `V` and `B`, and apps bind the rest, so those need
-  macOS with Karabiner running.
+  Karabiner maps `Q`, `A`, `Z`, `X`, `C`, `V` and `B`, and
+  [Hammerspoon](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon) and Raycast
+  bind the right hand, so those need macOS with the dotfiles installed.
 - **Hyper** (`⌘⌥⌃⇧`): hold Super and Symbols in either order. Every key tapped while both
-  are held gets Hyper; releasing one leaves only the other.
+  are held gets Hyper; releasing one leaves only the other. Hammerspoon uses it to
+  [launch apps](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher).
 - Tapping a Return, Tab or Fn thumb sends its modifier once (one-shot).
 
 ### F-Keys · hold Super, then Space or the right Fn thumb
