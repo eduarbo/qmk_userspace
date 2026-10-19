@@ -1,234 +1,133 @@
-# Eduardo's split-keyboard layout
+# Eduardo's 36-key layout
 
-Shared 36-key layout for the Piantor and the 3x5 Corne (CRKBD). The layer and
-chord behavior intentionally tracks the
-[Karabiner-Elements version](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner)
-used on the MacBook keyboard.
+One layout for the [Piantor](https://github.com/beekeeb/piantor) and the 3×5 Corne,
+mirrored on the MacBook keyboard by
+[Karabiner-Elements](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner).
+Both boards build from this userspace with the same keymap.
 
-## Supported targets
+- **Thumbs do double duty:** tap for a key, hold for a modifier or a layer.
+- **Always boots into macOS:** Winux is a per-session switch, and reconnecting restores macOS.
+- **Parity is tested:** `npm test` in `dotfiles/macos/karabiner` checks the base, Symbols and
+  F-Keys layers against [`wrappers.h`](wrappers.h).
 
-- `beekeeb/piantor:eduarbo`
-- `crkbd/rev1:eduarbo`
+## Layers
 
-Both targets use the same userspace code and are listed in `qmk.json`.
-`qmk userspace-compile` checks both locally; the included GitHub Actions workflow
-does the same on pushes after workflows have been enabled for this fork.
-
-The AVR-based CRKBD keeps its OLED and custom animations. RGB Matrix is
-explicitly disabled in its keymap to fit the firmware size limit. The verified
-build uses about 96% of available flash, so every userspace change must compile
-both targets before it is accepted.
-
-## How to build and flash
-
-### Prerequisites on macOS
-
-```sh
-brew install qmk/qmk/qmk
-brew install arm-none-eabi-gcc arm-none-eabi-binutils
-qmk setup -H ~/dev/eduarbo/qmk_firmware
-qmk config user.overlay_dir="$(realpath .)"
-```
-
-Run the overlay command from the root of this userspace checkout.
-
-Without a global `qmk` install, run the CLI through `uv` with the QMK toolchains
-checkout on the `PATH`, from the root of this userspace checkout:
-
-```sh
-export PATH="$HOME/dev/eduarbo/qmk_toolchains/bin:$PATH" QMK_HOME=~/dev/eduarbo/qmk_firmware
-uvx --from qmk==1.2.0 qmk userspace-compile
-```
-
-Prefix any `qmk` command below with `uvx --from qmk==1.2.0` the same way.
-
-### Build every configured target
-
-```sh
-qmk userspace-compile
-```
-
-### Piantor split UF2 images
-
-Run the command for each half, then put that half in bootloader mode; the CLI
-waits for the `RPI-RP2` drive and copies the image with its handedness:
-
-```sh
-qmk flash -kb beekeeb/piantor -km eduarbo -bl uf2-split-left
-qmk flash -kb beekeeb/piantor -km eduarbo -bl uf2-split-right
-```
-
-### Corne (CRKBD rev1)
-
-```sh
-qmk compile -kb crkbd/rev1 -km eduarbo
-```
-
-Both boards use `EE_HANDS`, so each half stores its side in EEPROM. Flash each
-Corne half with its handedness target:
-
-```sh
-qmk flash -kb crkbd/rev1 -km eduarbo -bl avrdude-split-left
-qmk flash -kb crkbd/rev1 -km eduarbo -bl avrdude-split-right
-```
-
-## Behavior contract
-
-The following chords are shared with the Karabiner layout unless a difference
-is called out explicitly:
-
-| Chord | Tap/result | Hold/release behavior |
-| --- | --- | --- |
-| `Symbols+A` | macOS: `Option+E`; Winux: `Right Alt+E` | `A` is Shift while held, without leaving Symbols |
-| `Symbols+;` | macOS: `Option+N`; Winux: `Right Alt+N` | `;` is Shift while held, without leaving Symbols |
-| `Symbols+Space` | `Left Shift+Space` | Space remains Left Shift while held |
-| Return thumb held + `Space` tap | macOS: `Command+Space`; Winux: `Control+Space` | Plain modifier chord, as on the built-in keyboard |
-| `Symbols+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Return remains Right Command or Right Control while held |
-| `Symbols+Shift+Return` | macOS: `Left Command+Return`; Winux: `Left Control+Return` | Same tap result as `Symbols+Return`; Shift is removed only for the emitted chord and then restored |
-| `Symbols+Super` or `Super+Symbols` | Hyper (`Right Shift+Command+Option+Control`, as in Karabiner) | Momentary in both press orders and applies to every key tapped while held; releasing either key restores only the key still held |
-| `Super+Space` | `F16` | With Super pressed first, holding Space enters F-Keys; either release order restores Super or the right Fn modifier correctly |
-
-`Symbols+Z` uses QMK's native Caps Word, while Karabiner emits Caps Lock there
-because it has no native Caps Word state machine. The userspace narrows the gap:
-letters are shifted, while digits, `-`, `'`, `;`, `` ` ``, Backspace and Delete
-continue Caps Word unshifted, as they would with Caps Lock.
-
-Caps Word is the only deliberate QMK/Karabiner difference. Both sides use a
-250 ms tap window (`TAPPING_TERM` here, `to_if_alone_timeout` in Karabiner). Running
-`npm test` in `dotfiles/macos/karabiner` compares the base, Symbols and F-Keys layers
-in `wrappers.h` with Karabiner, so run it after changing either side.
-
-Super plus a right thumb key can still emit the corresponding one-shot modifier
-on tap. That QMK convenience is separate from Hyper: the Hyper chord itself is
-strictly momentary and never leaves Symbols or Shift latched.
-
-## Symbols
-
-The accent keys are Shift mod-taps: tap for the dead key, hold for Shift.
-
-```text
-╭─────┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬─────╮
-│  ▲  │ 7 │ 8 │ 9 │ 0 │       │ \ │ [ │ ] │ / │  ▼  │
-├─────┼───┼───┼───┼───┤       ├───┼───┼───┼───┼─────┤
-│ ´/⇧ │ 4 │ 5 │ 6 │ = │       │ ← │ ↓ │ ↑ │ → │ ~/⇧ │
-├─────┼───┼───┼───┼───┤       ├───┼───┼───┼───┼─────┤
-│ CW  │ 1 │ 2 │ 3 │ - │       │ ` │ ' │   │   │     │
-╰─────┴───┴───┴───┴───╯       ╰───┴───┴───┴───┴─────╯
-```
-
-`▲`/`▼` are Page Up/Page Down; holding Shift changes them to Home/End.
-
-## Base layers
-
-The keyboard always boots into the macOS base. `TG_BASE` on Adjust switches
-between macOS and Winux for the current session only; unplugging and
-reconnecting the keyboard restores macOS. QMK OS detection stays disabled because
-USB hubs made it report macOS as Windows.
+Highlighted keys are held to reach the layer; dimmed keys fall through to the base layer.
 
 ### macOS base
 
-```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│ Q │ W │ E │ R │ T │       │ Y │ U │ I │ O │ P │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│ A │ S │ D │ F │ G │       │ H │ J │ K │ L │ ; │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│ Z │ X │ C │ V │ B │       │ N │ M │ , │ . │ ⌫ │
-╰───┴───┴──┬┴──┬┴──┬┴──╮ ╭──┴┬──┴┬──┴┬──┴───┴───╯
-           │ ⎋ │ ␣ │ ⏎ │ │ ⏎ │ ⇥ │F16│ ← tap
-           │ ≡ │ ⇧ │ ⌘ │ │ ⌘ │ ⇪ │ ⌃ │ ← hold
-           ╰───┴───┴───╯ ╰───┴───┴───╯
-```
+![macOS base layer](../../docs/layers/macos.svg)
 
 ### Winux base
 
-Winux uses Control where the macOS base uses Command. Its right Fn thumb is
-`F16` on tap and Right GUI on hold; the Return thumbs hold Right Control.
+The same keys with Control and GUI swapped on the thumbs. Switch with **macOS ⇄ Winux**
+on Adjust.
 
-```text
-           ╭───┬───┬───╮ ╭───┬───┬───╮
-           │ ⎋ │ ␣ │ ⏎ │ │ ⏎ │ ⇥ │F16│ ← tap
-           │ ≡ │ ⇧ │ ⌃ │ │ ⌃ │ ⇪ │ ⌘ │ ← hold
-           ╰───┴───┴───╯ ╰───┴───┴───╯
+![Winux base layer](../../docs/layers/winux.svg)
+
+### Symbols · hold Tab
+
+![Symbols layer](../../docs/layers/symbols.svg)
+
+- `´` and `˜` tap the dead keys (`Option+E`/`Option+N`, or `Right Alt` on Winux). Held, they
+  act as Shift without leaving the layer.
+- Shift turns PgUp and PgDn into Home and End.
+- Thumb taps add a modifier: `⇧ Esc`, `⇧ Space` and `⌘ Return` (`Ctrl+Return` on Winux).
+
+### Super · hold Esc
+
+Super is `⌘⌥⌃`. The small legend shows the shortcut each key sends.
+
+![Super layer](../../docs/layers/super.svg)
+
+- QMK sends `E`, `R`, `T`, `S`, `D`, `F` and `G` itself, as Control shortcuts on Winux.
+  Karabiner maps `Q`, `A`, `Z`, `X`, `C`, `V` and `B`, and apps bind the rest, so those need
+  macOS with Karabiner running.
+- **Hyper** (`⌘⌥⌃⇧`): hold Super and Symbols in either order. Every key tapped while both
+  are held gets Hyper; releasing one leaves only the other.
+- Tapping a Return, Tab or Fn thumb sends its modifier once (one-shot).
+
+### F-Keys · hold Super, then Space or the right Fn thumb
+
+![F-Keys layer](../../docs/layers/fkeys.svg)
+
+Key for key the same as the Karabiner FN layer.
+
+### Adjust · hold Super and a Return thumb
+
+![Adjust layer](../../docs/layers/adjust.svg)
+
+- **macOS ⇄ Winux** switches the base until the keyboard is reconnected.
+- **Gamepad** toggles the gaming layer.
+- **Bootloader** prepares the half for flashing, so you don't need the BOOTSEL button.
+- **Clear settings** erases the EEPROM. On the Piantor that includes which side the half
+  is, so reflash it with its `-left` or `-right` target afterwards.
+
+### Gamepad
+
+![Gamepad layer](../../docs/layers/gamepad.svg)
+
+The arrows sit where WASD would be, shifted one column right. To leave, hold Alt and the
+right Return thumb to reach Adjust, then tap **Gamepad**.
+
+### Caps Word
+
+`Symbols+Z` turns on QMK Caps Word. Letters are capitalized, while digits, `-`, `'`, `;`, `` ` ``,
+Backspace and Delete continue it unshifted, as with Caps Lock. It is the only deliberate
+difference from Karabiner, which sends Caps Lock. Both sides use a 250 ms tap window.
+
+## Why it looks like this
+
+- Super and Shift sit on the left, so shortcuts work one-handed while the right hand is on
+  the mouse.
+- Symbols sits on the right, so the arrows on `H`, `J`, `K` and `L` work with one hand.
+- Return and Command sit on both sides, like the MacBook space bar, so they pair with a
+  modifier on either hand.
+- Return stays off the Shift and Symbols thumbs to avoid accidental presses while typing.
+
+## Build and flash
+
+Without a global `qmk` install, run the CLI through `uv` with the QMK toolchains on the
+`PATH`, from the root of this repository:
+
+```sh
+export PATH="$HOME/dev/eduarbo/qmk_toolchains/bin:$PATH" QMK_HOME=~/dev/eduarbo/qmk_firmware
+alias qmk='uvx --from qmk==1.2.0 qmk'
 ```
 
-## Super
+| Task | Command |
+| --- | --- |
+| Build both boards | `qmk userspace-compile` |
+| Flash a Piantor half | `qmk flash -kb beekeeb/piantor -km eduarbo -bl uf2-split-left` (or `-right`) |
+| Flash a Corne half | `qmk flash -kb crkbd/rev1 -km eduarbo -bl avrdude-split-left` (or `-right`) |
 
-Super is `Command+Option+Control` and provides one-handed browser/developer
-shortcuts. Holding it with Symbols produces Hyper in either press order.
+When the CLI waits for the board, connect that half and choose **Bootloader** on Adjust,
+or hold BOOTSEL while plugging it in. Each half stores its side in EEPROM (`EE_HANDS`), so
+flash it with the matching `-left` or `-right` target.
 
-```text
-╭───┬───┬───┬───┬───╮       ╭───┬───┬───┬───┬───╮
-│⇧⌘3│MIC│⌥⌘I│⇧⌘C│⌘\ │       │SND│1PW│GPT│CLP│   │
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│⇧⌘4│⇧⌃⇥│⌘[ │⌘] │⌃⇥ │       │W←½│WNS│WTM│W→½│WGR│
-├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-│⇧⌘5│⌃↓ │⌘` │⌘⇥ │⌃↑ │       │   │EMJ│SNP│UAC│   │
-╰───┴───┴───┴───┴───╯       ╰───┴───┴───┴───┴───╯
+The AVR-based Corne keeps its OLED and disables RGB Matrix to fit; it uses about 96% of
+its flash, so compile both boards before accepting a change.
+
+## Update the diagrams
+
+```sh
+python3 docs/draw_layout.py
 ```
 
-QMK emits `E`, `R`, `T`, `S`, `D`, `F` and `G` itself; the developer and
-navigation shortcuts use their Control equivalents on the Winux base. `Q`, `A`,
-`Z`, `X`, `C`, `V` and `B` are remapped by Karabiner's SUPER layer, which applies
-to external keyboards on purpose. `MIC` and the right-hand bindings are app
-hotkeys on `Super+key`. Without Karabiner (for example on a Winux host), those
-keys reach the host as plain `Super+key`.
+The script reads `wrappers.h` and redraws `docs/layers/*.svg` with a pinned
+[keymap-drawer](https://github.com/caksoylar/keymap-drawer). Labels and the Super layer,
+which lives in `process_records.c` and Karabiner rather than `wrappers.h`, are defined in
+the script.
 
-## F-Keys
+## Test after flashing
 
-```text
-╭───┬───┬───┬───┬───╮       ╭────┬────┬────┬────┬───╮
-│F12│F7 │F8 │F9 │PRT│       │ V+ │ RW │PLAY│ FF │PRT│
-├───┼───┼───┼───┼───┤       ├────┼────┼────┼────┼───┤
-│F11│F4 │F5 │F6 │LCK│       │ V- │ V- │MUTE│ V+ │LCK│
-├───┼───┼───┼───┼───┤       ├────┼────┼────┼────┼───┤
-│F10│F1 │F2 │F3 │PAU│       │MUTE│ B- │ B+ │MCTL│PAU│
-╰───┴───┴───┴───┴───╯       ╰────┴────┴────┴────┴───╯
-```
-
-F-Keys matches the Karabiner FN layer key for key. Reach it by holding Super and
-then Space, or Super and the right Fn thumb.
-
-## Adjust and Gamepad
-
-Hold Super and a Return thumb, in either order, to reach Adjust. In Gamepad, hold
-Left Alt and the right Return thumb instead.
-
-```text
-╭───┬───┬───┬───┬───╮       ╭───┬────┬────┬───┬───╮
-│   │DBG│RBT│EEC│BOT│       │   │    │    │   │   │
-├───┼───┼───┼───┼───┤       ├───┼────┼────┼───┼───┤
-│   │   │   │   │   │       │   │GAME│BASE│   │   │
-├───┼───┼───┼───┼───┤       ├───┼────┼────┼───┼───┤
-│   │   │   │   │   │       │   │    │    │   │   │
-╰───┴───┴───┴───┴───╯       ╰───┴────┴────┴───┴───╯
-```
-
-`DBG` toggles debug, `RBT` reboots, `EEC` clears EEPROM and `BOT` enters the
-bootloader. Lighting controls fill the empty left keys only on builds with RGB
-Matrix or RGB Light enabled; neither current target enables them. `BASE` is the
-session-only macOS/Winux toggle described above, and `GAME` toggles Gamepad, a
-right-shifted QWERTY layer for FPS controls. Both toggles live on Adjust instead
-of F-Keys so that volume and brightness keys cannot change the layout.
-
-## Physical verification checklist
-
-After flashing, test on both the macOS and Winux bases:
-
-1. Tap and hold both accent keys; confirm the tap emits the expected dead key
-   and the hold shifts a following Symbols-layer key.
-2. Test tap and hold for `Symbols+Space` and `Symbols+Return` on both bases, plus
-   `Symbols+Shift+Return`; holding a Return thumb and tapping Space must open
-   Spotlight on macOS. Release Symbols
-   and each thumb in both orders; verify the exact tap result, rollover behavior,
-   restored one-shot modifiers, and that no modifier remains latched.
-3. Enter Hyper in both press orders and tap several keys while holding it; every
-   key must carry Hyper. Then release Symbols first and Super first; the
-   remaining key must keep only its own behavior.
-4. With Super pressed first, tap and hold Space. Release Space first once and
-   Super first once; no modifier or layer may remain latched.
-5. Toggle Caps Word with `Symbols+Z`, type letters, digits, `-`, underscore,
-   and a terminating key; `-` must stay a hyphen.
-6. On F-Keys, confirm `J`/`K`/`L` send Volume Down, Mute and Volume Up.
-7. Toggle `BASE` on Adjust, confirm the Winux base is active, then unplug and
-   reconnect the keyboard: the macOS base must be active again.
+1. Tap and hold `´` and `˜` on Symbols: the tap types the accent, the hold shifts the
+   next Symbols key.
+2. Tap and hold each thumb on Symbols and on both bases, releasing in both orders; no
+   modifier may stay latched.
+3. Hold a Return thumb and tap Space: it opens Spotlight on macOS.
+4. Hold Hyper in both press orders and tap several keys; each must get Hyper.
+5. Hold Super, then tap and hold Space; release in both orders.
+6. On F-Keys, `J`, `K` and `L` send Volume Down, Mute and Volume Up.
+7. Turn on Caps Word and type `ABC-DEF`; the hyphen must stay a hyphen.
+8. Switch to Winux on Adjust, then reconnect the keyboard: it must be back on macOS.

@@ -1,39 +1,18 @@
 # Eduardo's QMK userspace
 
-Shared QMK configuration for Eduardo's Piantor and Corne keyboards. The keymaps
-use the same layer definitions and chord behavior so the two boards stay in
-sync with the internal-keyboard mapping in
+Firmware for my Piantor and Corne, two 36-key splits that share one keymap. The MacBook
+keyboard mirrors it with
 [Karabiner-Elements](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner).
 
-The complete layout, behavior contract, setup, and flashing instructions live
-in [the userspace documentation](users/eduarbo/README.md).
+![macOS base layer](docs/layers/macos.svg)
 
-## CI build targets
+**[Layers, build and flashing guide →](users/eduarbo/README.md)**
 
-- `beekeeb/piantor:eduarbo`
-- `crkbd/rev1:eduarbo`
+| Target | Hardware |
+| --- | --- |
+| `beekeeb/piantor:eduarbo` | Raspberry Pi Pico (RP2040), one UF2 per half |
+| `crkbd/rev1:eduarbo` | Pro Micro (AVR), OLED on, RGB Matrix off |
 
-`qmk.json` is the authoritative build matrix, and `qmk userspace-compile`
-compiles both targets. The included GitHub Actions workflow uses the same matrix
-on manual runs, and on pushes after workflows have been enabled for this fork. It
-replaces the `latest` release only when every target builds. A successful build
-verifies that the shared userspace compiles for both boards; flashing and a
-physical key test are still required before treating a behavior change as
-hardware-verified.
-The AVR-based Corne keeps its OLED animations but disables RGB Matrix to stay
-within its firmware size limit; its build has little spare flash and must remain
-in the build matrix for every change.
-
-## Local build
-
-After installing QMK and configuring this checkout as the userspace overlay:
-
-```sh
-qmk config user.overlay_dir="$(realpath .)"
-qmk userspace-compile
-```
-
-The userspace guide also covers building without a global `qmk` install.
-
-Piantor split UF2 images can be built explicitly with the commands documented
-in [the userspace guide](users/eduarbo/README.md#how-to-build-and-flash).
+[`qmk.json`](qmk.json) lists both targets for `qmk userspace-compile`. Running the
+**Build QMK firmware** workflow in GitHub Actions builds them and replaces the `latest`
+release only when both compile.
