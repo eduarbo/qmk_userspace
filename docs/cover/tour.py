@@ -2,50 +2,35 @@
 
 import base64
 import subprocess
+import sys
 from html import escape
 from pathlib import Path
-from xml.etree import ElementTree as ET
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from draw_layout import read_keymap
+from layer_art import legend
 
 HERE = Path(__file__).resolve().parent
 INK = "#1a302e"
 PAPER = "#f6f0e2"
 MINT = "#a5edc3"
 APRICOT = "#ffb677"
-NS = "{http://www.w3.org/2000/svg}"
-# Scene title, layer, ordered thumb holds (QMK index and role), tap, output.
+# Short references use the order of LAYOUT_split_3x5_3. Each recipe starts on Base.
+# title, still filename, holds (position, role, resulting layer), tap, result.
 SCENES = [
-    ("Meet the thumbs", "Base", [], None, ""),
-    ("Open Spotlight", "Base", [(33, "Cmd")], 31, "⌘ Space"),
-    ("Type a capital", "Base", [(31, "Shift")], 10, "A"),
-    ("Move down a line", "Symbols", [(34, "Symbols")], 16, "↓"),
-    ("Go back a page", "Super", [(30, "Super")], 12, "⌘ ["),
-    ("Mute the audio", "F-Keys", [(30, "Super"), (35, "F-Keys")], 17, "Mute"),
+    ("Open Raycast", "raycast", [], 35, "Raycast opens"),
+    ("Type a capital A", "capital", [(31, "Shift", "Base")], 10, "A"),
+    ("Move the cursor down", "cursor", [(34, "Symbols", "Symbols")], 16, "↓  Down"),
+    ("Go back in the browser", "back", [(30, "Super", "Super")], 12, "⌘ [  ·  Back"),
+    (
+        "Mute the audio",
+        "mute",
+        [(30, "Super", "Super"), (35, "F-Keys", "F-Keys")],
+        17,
+        "Mute",
+    ),
 ]
-
-
-def read_legends():
-    layers = {}
-    for name, slug in [
-        ("Base", "macos"),
-        ("Symbols", "symbols"),
-        ("Super", "super"),
-        ("F-Keys", "fkeys"),
-    ]:
-        caps = {}
-        for node in ET.parse(HERE.parent / "layers" / f"{slug}.svg").iter(NS + "g"):
-            if "data-position" not in node.attrib:
-                continue
-            i = int(node.attrib["id"].removeprefix("key-"))
-            # The centered text is the output legend. Corner labels are lookup aids.
-            lines = [
-                t.text
-                for t in node.findall(NS + "text")
-                if t.get("x") == "33.5" and t.text
-            ]
-            caps[i] = (node.attrib["data-position"], lines)
-        assert set(caps) == set(range(36))
-        layers[name] = caps
-    return layers
+HOLD_DELAY, RESULT_DELAY = 380, 620  # GIF centiseconds
 
 
 def text(
@@ -70,86 +55,90 @@ def rect(x, y, w, h, r, fill, extra=""):
     return f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="{r:g}" fill="{fill}" {extra}/>'
 
 
-def keyface(index, anchor, layer, layers, held, tapped):
+def keyface(index, anchor, layer, keymap, physical, held, tapped):
     x, y, angle = anchor
-    physical = layers["Base"][index][0]
-    active = index in held or index == tapped
-    fill = MINT if index in held else APRICOT
+    key = legend(keymap[layer][index])
     body = [f'<g transform="translate({x:.2f} {y:.2f}) rotate({angle:.2f})">']
+    active = index in held or index == tapped
     if active:
+        fill = MINT if index in held else APRICOT
         body.append(
             rect(-39, -34, 78, 69, 8, fill, 'stroke="#18362e" stroke-width="3"')
         )
-    if index >= 30:
-        second = held.get(index, layers[layer][index][1][-1])
-        if index == tapped:
-            second = "Tap"
-        body.extend(
-            [
-                text(
-                    0, -1, physical, 26 if len(physical) < 5 else 22, INK, 700, "middle"
-                ),
-                text(
-                    0,
-                    20,
-                    second,
-                    min(22, 137 / max(1, len(second))),
-                    INK,
-                    600,
-                    "middle",
-                ),
-            ]
-        )
-    else:
-        lines = layers[layer][index][1]
-        # The Super overview shows the browser bindings implemented in firmware.
-        detail = layer != "Base" and (layer != "Super" or physical in "ERTSDFG")
-        if detail and lines:
-            # Symbols accent taps and the navigation/media actions have their usual QWERTY key above.
-            action = " ".join(s for s in lines if s != "Shift")
-            action = {
-                "Play Pause": "Play",
-                "Mission Control": "Mission",
-                "Caps Word": "Caps W.",
-                "Dev Tools": "Tools",
-                "Inspect": "Insp.",
-                "Forward": "Fwd",
-                "Pause JS": "Pause",
-                "Prev tab": "←Tab",
-                "Next tab": "Tab→",
-                "Fast fwd": "Fwd",
-            }.get(action, action)
-            size = min(30, 133 / max(len(action), 1))
-            body.extend(
-                [
-                    text(0, -10, physical, 20, INK, 600, "middle"),
-                    text(0, 20, action, size, INK, 750, "middle"),
-                ]
+
+    # Every key face uses the same tap, hold and shifted legends as the reference map.
+    # The step strip below always names the physical key to press.
+    value = key["t"]
+    secondary = key.get("h", "")
+    corner = key.get("s", "")
+    ink = INK if active or (not held and tapped is None) else "#4a5651"
+    if index in held:
+        value, secondary, corner = physical, held[index], ""
+    elif index == tapped:
+        secondary = value if physical != value else ""
+        value, corner = physical, ""
+    if not value and layer == "Super":
+        # Super passes this key to the host with Cmd+Option+Control held.
+        value = keymap["Base"][index]
+    show_position = layer != "Base" and index not in held and physical != value
+    if show_position:
+        body.append(text(-33, -18, physical, min(17, 80 / len(physical)), ink, 650))
+    if corner == "one-shot":
+        corner = "1×"
+    if corner:
+        body.append(text(33, -18, corner, min(17, 88 / len(corner)), ink, 600, "end"))
+    lines = value.splitlines()
+    first_y = (4 if secondary else 12) if len(lines) < 2 else (-3 if corner else 0)
+    if len(lines) > 1 and show_position:
+        first_y = 5
+    if secondary and corner:
+        first_y = 5
+    for j, line in enumerate(lines):
+        body.append(
+            text(
+                0,
+                first_y + j * 21,
+                line,
+                min(32 if len(lines) == 1 else 21, 132 / max(len(line), 1)),
+                ink,
+                700,
+                "middle",
             )
-        else:
-            body.append(text(0, 10, physical, 32, INK, 650, "middle"))
+        )
+    if secondary:
+        body.append(
+            text(0, 25, secondary, min(21, 124 / len(secondary)), ink, 600, "middle")
+        )
     return "".join(body + ["</g>"])
 
 
-def chord_label(x, y, role, value, phone):
-    body = []
-    if role in {"HOLD", "TAP"}:
-        color = MINT if role == "HOLD" else APRICOT
-        body.append(
-            rect(x, y - 14, 15, 15, 4, color, 'stroke="#547261" stroke-width="1"')
-        )
-    body.append(
-        text(x + (21 if body else 0), y, role, 14 if phone else 15, "#53645e", 700)
+def step_card(x, y, width, label, value, state, phone):
+    colors = {"hold": MINT, "tap": APRICOT, "result": INK, "waiting": "#e5e6da"}
+    ink = PAPER if state == "result" else "#52635b" if state == "waiting" else INK
+    wide = not phone
+    return "".join(
+        [
+            rect(x, y, width, 78 if wide else 70, 9, colors[state]),
+            text(x + 12, y + 23, label, 17 if wide else 16, ink, 700),
+            text(
+                x + 12,
+                y + (59 if wide else 52),
+                value,
+                min(33 if wide else 29, (width - 20) * 1.67 / max(len(value), 1)),
+                ink,
+                700,
+            ),
+        ]
     )
-    body.append(text(x, y + 29, value, 25 if phone else 28, INK, 700))
-    return "".join(body)
 
 
-def frame(phone, layers, hands, anchors, scene_index, held_count, pressed):
-    title, target_layer, chord, tap, output = SCENES[scene_index]
-    held = dict(chord[:held_count])
-    layer = "Super" if target_layer == "F-Keys" and held_count == 1 else target_layer
-    w, h, footer = (520, 928, 778) if phone else (1280, 680, 548)
+def frame(phone, physical, keymap, hands, anchors, scene, count, pressed):
+    idle = scene is None
+    title, _, holds, tap, result = scene or ("Tap or hold a thumb", "", [], None, "")
+    acquired = holds[:count]
+    held = {i: role for i, role, _ in acquired}
+    layer = acquired[-1][2] if acquired else "Base"
+    w, h, footer = (520, 976, 778) if phone else (1280, 735, 548)
     top = 94 if phone else 93
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{w}" height="{h}">',
@@ -200,112 +189,102 @@ def frame(phone, layers, hands, anchors, scene_index, held_count, pressed):
         svg.append(f'<image width="720" height="554" xlink:href="{hands[side]}"/>')
         for i, anchor in anchors[side].items():
             svg.append(
-                keyface(i, anchor, layer, layers, held, tap if pressed else None)
+                keyface(
+                    i,
+                    anchor,
+                    layer,
+                    keymap,
+                    physical[i],
+                    held,
+                    tap if pressed else None,
+                )
             )
         svg.append("</g>")
     svg.append(rect(0, footer, w, h - footer, 0, PAPER))
-    bar_x, bar_w = pad, (w - 2 * pad) / len(SCENES)
-    for i in range(len(SCENES)):
-        svg.append(
-            rect(
-                bar_x + i * bar_w,
-                footer + 1,
-                bar_w - 4,
-                4,
-                2,
-                "#ce7246" if i == scene_index else "#d2d6c7",
-            )
-        )
     svg.append(
         text(
             pad,
-            footer + (48 if phone else 61),
+            footer + 53,
             title,
-            34 if phone else 44,
+            37 if phone else 46,
             INK,
             600,
             family="Georgia, serif",
         )
     )
-    if not chord:
-        if phone:
-            svg.extend(
-                [
-                    text(pad, footer + 89, "Upper legend · tap", 23, INK),
-                    text(pad, footer + 119, "Lower legend · hold", 23, INK),
-                ]
+    if idle:
+        svg.append(
+            text(
+                pad, footer + 100, "Upper thumb legend · tap", 26 if phone else 30, INK
             )
-        else:
-            svg.append(
-                text(
-                    pad,
-                    footer + 103,
-                    "Upper legend · tap     /     Lower legend · hold",
-                    24,
-                    INK,
-                    500,
-                )
+        )
+        svg.append(
+            text(
+                pad, footer + 140, "Lower thumb legend · hold", 26 if phone else 30, INK
             )
+        )
     else:
-        physical = layers["Base"]
-        hold_text = " then ".join(physical[i][0] for i, _ in chord)
-        mod = " + ".join(role for _, role in chord)
-        if not phone:
-            svg.append(
-                text(
-                    pad,
-                    footer + 104,
-                    {"Super": "Super  ·  ⌘ ⌥ ⌃", "F-Keys": "Super → F-Keys"}.get(
-                        layer, mod
-                    ),
-                    22,
-                    "#445b54",
-                )
+        cards = [
+            (
+                f"{n+1}  HOLD · {role.upper()}",
+                physical[i],
+                "hold" if n < count else "waiting",
             )
-        xs = [pad, 243, 360] if phone else [590, 895, 1055]
-        base_y = footer + (84 if phone else 53)
-        for x, role, value in zip(
-            xs,
-            ["HOLD", "TAP", "OUTPUT"],
-            [hold_text, physical[tap][0], output if pressed else "…"],
-        ):
-            svg.append(chord_label(x, base_y, role, value, phone))
+            for n, (i, role, _) in enumerate(holds)
+        ]
+        cards.append(
+            (f"{len(holds)+1}  TAP", physical[tap], "tap" if pressed else "waiting")
+        )
+        cards.append(
+            ("RESULT", result if pressed else "…", "result" if pressed else "waiting")
+        )
+        # Give the result its own line on phones so a three-key chord still reads at a glance.
+        gap = 10
+        cols = len(cards) - 1 if phone else len(cards)
+        width = (w - 2 * pad - (cols - 1) * gap) / cols
+        for n, (label, value, state) in enumerate(cards):
+            x = pad + n * (width + gap)
+            if phone and n == len(cards) - 1:
+                svg.append(text(pad, footer + 169, "RESULT", 16, INK, 700))
+                svg.append(text(pad + 82, footer + 174, value, 30, INK, 700))
+            else:
+                svg.append(step_card(x, footer + 68, width, label, value, state, phone))
     return "".join(svg + ["</svg>"])
 
 
 def animate(folder, anchors):
-    layers = read_legends()
+    physical, keymap = read_keymap()
+    keymap["Base"] = keymap["macOS base"]
     hands = {}
     for side in anchors:
         png = (folder / f"{side}.png").read_bytes()
         hands[side] = "data:image/png;base64," + base64.b64encode(png).decode()
+    stills = HERE / "steps"
+    stills.mkdir(exist_ok=True)
     for phone, stem in [(False, "layout"), (True, "layout-mobile")]:
         frames = []
-        for index, (_, _, chord, _, _) in enumerate(SCENES):
-            beats = (
-                [(0, False, 330)]
-                if not chord
-                else [
-                    *((n, False, 70) for n in range(1, len(chord) + 1)),
-                    (len(chord), True, 260),
+        for index, scene in enumerate([None, *SCENES]):
+            beats = [(0, False, 430)]
+            if scene:
+                holds = scene[2]
+                beats = [(0, False, 260)] + [
+                    (n, False, HOLD_DELAY) for n in range(1, len(holds) + 1)
                 ]
-            )
+                beats.append((len(holds), True, RESULT_DELAY))
             for n, pressed, delay in beats:
                 path = folder / f"{stem}-{index}-{n}-{int(pressed)}.png"
-                svg = frame(phone, layers, hands, anchors, index, n, pressed)
+                svg = frame(phone, physical, keymap, hands, anchors, scene, n, pressed)
                 subprocess.run(
                     ["rsvg-convert", "-o", str(path)], input=svg.encode(), check=True
                 )
-                if not frames:
+                still = None
+                if not scene:
+                    still = HERE / f"{stem}.webp"
+                elif pressed and not phone:
+                    still = stills / f"{scene[1]}.webp"
+                if still:
                     subprocess.run(
-                        [
-                            "magick",
-                            str(path),
-                            "-strip",
-                            "-quality",
-                            "93",
-                            str(HERE / f"{stem}.webp"),
-                        ],
+                        ["magick", str(path), "-strip", "-quality", "93", str(still)],
                         check=True,
                     )
                 frames.extend(["-delay", str(delay), str(path)])

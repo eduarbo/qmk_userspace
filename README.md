@@ -10,8 +10,10 @@ keyboard mirrors it with
   <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="docs/cover/layout-mobile.webp">
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/cover/layout.webp">
   <source media="(max-width: 600px)" srcset="docs/cover/layout-mobile.gif">
-  <img src="docs/cover/layout.gif" alt="My 36-key Piantor in use. The thumb legends show tap and hold. The loop lights up the keys for Spotlight, a capital A, cursor down, browser back and mute.">
+  <img src="docs/cover/layout.gif" alt="My Piantor on macOS. The loop shows F16 opening Raycast, thumb Shift for a capital A, cursor down, browser back and mute. Each step names the physical key.">
 </picture>
+
+[Read the five gestures at your own pace](users/eduarbo/README.md#the-demo-at-your-own-pace)
 
 | Target | Hardware |
 | --- | --- |

@@ -159,7 +159,7 @@ def symbols_legends(keys):
     return keys
 
 
-def main() -> None:
+def read_keymap():
     blocks = parse_wrappers(WRAPPERS.read_text())
     base_tokens = [t for row in ROWS for t in block(blocks, f"QWERTY_{row}")]
     base_tokens += block(blocks, "BASE_MAC_MODS_L") + block(blocks, "BASE_MAC_MODS_R")
@@ -170,13 +170,18 @@ def main() -> None:
 
     layers["Symbols"] = symbols_legends(layers["Symbols"])
 
+    physical = [label(token) for token in base_tokens[:30]] + ["Esc", "Space", "Return", "Return", "Tab", "F16"]
+    return physical, layers
+
+
+def main() -> None:
+    physical, layers = read_keymap()
     if INFO_JSON.exists():
         keyboard = json.loads(INFO_JSON.read_text())
     else:
         with urlopen("https://keyboards.qmk.fm/v1/keyboards/beekeeb/piantor/info.json", timeout=20) as response:
             keyboard = json.load(response)["keyboards"]["beekeeb/piantor"]
     positions = keyboard["layouts"]["LAYOUT_split_3x5_3"]["layout"]
-    physical = [label(token) for token in base_tokens[:30]] + ["Esc", "Space", "Return", "Return", "Tab", "F16"]
     OUTPUT.mkdir(parents=True, exist_ok=True)
     (OUTPUT / "mobile").mkdir(exist_ok=True)
     for title, slug, *_ in LAYERS:

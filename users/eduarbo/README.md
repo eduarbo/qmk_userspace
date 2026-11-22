@@ -1,15 +1,27 @@
 # Eduardo's 36-key layout
 
-[Find a key](#find-a-key) · [Base and thumbs](#base-and-thumbs) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
+[Find a key](#find-a-key) · [Demo stills](#the-demo-at-your-own-pace) · [Base and thumbs](#base-and-thumbs) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
 
 <picture>
   <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="../../docs/cover/layout-mobile.webp">
   <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/cover/layout.webp">
   <source media="(max-width: 600px)" srcset="../../docs/cover/layout-mobile.gif">
-  <img src="../../docs/cover/layout.gif" alt="My 36-key Piantor in use. The thumb legends show tap and hold. The loop lights up the keys for Spotlight, a capital A, cursor down, browser back and mute.">
+  <img src="../../docs/cover/layout.gif" alt="My Piantor on macOS. The loop shows F16 opening Raycast, thumb Shift for a capital A, cursor down, browser back and mute. Each step names the physical key.">
 </picture>
 
 The [Piantor](https://github.com/beekeeb/piantor) is my daily driver. My 3×5 Corne and MacBook use the same finger positions. I keep the arrows on `H J K L` so I can move the cursor with my right hand, and put my browser shortcuts on the left so I can keep the other hand on the mouse. The splits run QMK. On the laptop, Karabiner-Elements gives the keys around the space bar the jobs of the six split thumbs.
+
+## The demo at your own pace
+
+Each link opens a still of that gesture. Read a row from left to right. Keep each hold down while you tap, then release.
+
+| Gesture on my Piantor | Hold | Tap | Result on my Mac |
+| --- | --- | --- | --- |
+| [Open Raycast](../../docs/cover/steps/raycast.webp) | — | **F16** · right outer thumb | Raycast opens. F16 is my launcher shortcut. |
+| [Type a capital](../../docs/cover/steps/capital.webp) | **Space** for Shift | **A** | `A` |
+| [Move the cursor](../../docs/cover/steps/cursor.webp) | **Tab** for Symbols | **J** | ↓ one line |
+| [Go back in the browser](../../docs/cover/steps/back.webp) | **Esc** for Super | **D** | ⌘[ goes back |
+| [Mute the audio](../../docs/cover/steps/mute.webp) | **Esc**, then **F16** for F-Keys | **K** | Mute |
 
 ## Find a key
 
@@ -29,9 +41,10 @@ Letters below name the physical QWERTY positions. Character examples use U.S. in
 | Type a number | Hold Symbols. `X C V` give **1 2 3**, `S D F` give **4 5 6**, `W E R` give **7 8 9**, and `T` gives **0**. |
 | Move the cursor | Hold Symbols. `H J K L` give **← ↓ ↑ →**. `Q` / `P` give **Page Up / Page Down**. Add the **Shift thumb** for **Home / End**. |
 | Send ⌘Return | Hold Symbols. Tap either **Return thumb** on the split or the **physical space bar** on the MacBook. |
-| Send ⌘Space for Spotlight | On the split, hold either **Return thumb** and tap the **Space thumb**. On the MacBook, hold the **physical space bar** and tap **left ⌘**. |
+| Open Raycast | Tap the **F16 thumb** on the split or the printed **right ⌥** on the MacBook. |
+| Send ⌘Space | On the split, hold either **Return thumb** and tap the **Space thumb**. On the MacBook, hold the **physical space bar** and tap **left ⌘**. |
 | Go back / forward in the browser | Hold Super and tap `D` / `F`. For previous / next tab, use `S` / `G`. |
-| Press F5 or mute the audio | On the split, hold **Esc**, then hold the **Space thumb**. On the MacBook, hold **left ⌥**, then hold the **space bar**. Tap `D` for **F5** or `K` for **mute**. |
+| Press F5 or mute the audio | On the split, hold **Esc**, then hold **F16** (or the **Space thumb**). On the MacBook, hold **left ⌥**, then hold **right ⌥** (or the **space bar**). Tap `D` for **F5** or `K` for **mute**. |
 | Open Finder with my app launcher | Hold Super and Symbols together, then tap `F`. [All launcher bindings](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher) |
 
 You can also [look up every punctuation pair on Symbols](#symbols--hold-tab) or read [why I added two spare Shifts for MacBook rollover](#macbook-rollover-and-shift).
@@ -229,7 +242,7 @@ The split positions come from [wrappers.h](wrappers.h), chord handling from [pro
 
 To redraw both GIF tutorials, install `rsvg-convert` (librsvg) and ImageMagick 7, then run `python3 docs/draw_gestures.py --macbook-svg /path/to/dotfiles/macos/karabiner/docs/macbook.svg`. Each frame lights the matching physical key on the corresponding board map.
 
-The [Piantor cover](../../docs/cover/layout.gif) uses the switch centers, thumb angles and PCB outline from [beekeeb’s Piantor PCB](https://github.com/beekeeb/piantor/tree/cd847afb4f9a86e8c1c8e36f243140644013afb2/pcb) and the legends from the layer maps above. The board geometry is by beekeeb under [GPLv3](../../docs/cover/COPYING). To [render](../../docs/cover/render.py) the desktop and phone GIFs and their still frames, run `blender -b --factory-startup --python-exit-code 1 -P docs/cover/render.py`.
+The [Piantor cover](../../docs/cover/layout.gif) uses the switch centers, thumb angles and PCB outline from [beekeeb’s Piantor PCB](https://github.com/beekeeb/piantor/tree/cd847afb4f9a86e8c1c8e36f243140644013afb2/pcb) and the same keymap data as the layer maps above. The board geometry is by beekeeb under [GPLv3](../../docs/cover/COPYING). To [render](../../docs/cover/render.py) the desktop and phone GIFs and their still frames, run `blender -b --factory-startup --python-exit-code 1 -P docs/cover/render.py`.
 
 The [Karabiner guide](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner) covers the printed MacBook keys, profiles and app-specific rules. Its [parity tests](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/config/qmkParity.test.ts) compare the thirty finger positions on Base, Symbols and F-Keys with this userspace.
 
