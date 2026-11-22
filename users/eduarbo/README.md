@@ -45,14 +45,14 @@ Open any name for a still of the Piantor. Mint keys are held. An orange key is t
 
 | Map | Piantor / Corne | MacBook · printed keys |
 | --- | --- | --- |
-| [macOS base](../../docs/cover/layout.webp) | Default on power-up | Default profile |
-| [Symbols](../../docs/cover/steps/symbols.webp) | Hold Tab | Hold right ⌘ |
-| [Hyper · ⌘⌥⌃⇧](../../docs/cover/steps/hyper.webp) | Hold Tab + Esc, either order | Hold right ⌘ + left ⌥, either order |
-| [Super · ⌘⌥⌃](../../docs/cover/steps/super.webp) | Hold Esc | Hold left ⌥ |
-| [F-Keys](../../docs/cover/steps/fkeys.webp) | Hold Esc, then Space or F16 | Hold left ⌥, then space bar or right ⌥ |
-| [Adjust](../../docs/cover/steps/adjust.webp) | Hold Esc + either Return thumb | QMK only |
-| [Gamepad](../../docs/cover/steps/gamepad.webp) | In Adjust, tap `J` and release the thumbs. To leave, hold Alt + right Return and tap `J`. | QMK only |
-| [Winux base](../../docs/cover/steps/winux.webp) | In Adjust, tap `K` and release the thumbs. Repeat to switch back. | QMK only |
+| [macOS base](../../docs/layers/macos.svg) | Default on power-up | Default profile |
+| [Symbols](../../docs/layers/symbols.svg) | Hold Tab | Hold right ⌘ |
+| [Hyper · ⌘⌥⌃⇧](../../docs/layers/hyper.svg) | Hold Tab + Esc, either order | Hold right ⌘ + left ⌥, either order |
+| [Super · ⌘⌥⌃](../../docs/layers/super.svg) | Hold Esc | Hold left ⌥ |
+| [F-Keys](../../docs/layers/fkeys.svg) | Hold Esc, then Space or F16 | Hold left ⌥, then space bar or right ⌥ |
+| [Adjust](../../docs/layers/adjust.svg) | Hold Esc + either Return thumb | QMK only |
+| [Gamepad](../../docs/layers/gamepad.svg) | In Adjust, tap `J` and release the thumbs. To leave, hold Alt + right Return and tap `J`. | QMK only |
+| [Winux base](../../docs/layers/winux.svg) | In Adjust, tap `K` and release the thumbs. Repeat to switch back. | QMK only |
 
 ### Base and thumbs
 
@@ -177,7 +177,14 @@ On the MacBook **base**, I also have dedicated Shifts at **Caps Lock** (left Shi
 
 QMK emits the seven browser shortcuts (`E R T S D F G`) in firmware. On Winux, back/forward use **Alt+←/→**. Screenshot and app-switching keys (`Q A Z X C V B`) use a device-independent Karabiner rule, so the splits get them on my Mac too. Right-hand window and utility bindings depend on my Hammerspoon, Raycast or Gemini setup. The thumb legends on the Super diagram describe QMK's macOS base. A **one-shot** modifier applies to the next key. [Mac bindings](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon)
 
-**Hyper** adds Shift to Super. Keep Super and Symbols held while tapping one or more keys. Release either thumb to go back to the one you are still holding.
+### Hyper · hold Esc and Tab
+
+Hyper adds Shift to Super. Keep Super and Symbols held while tapping one or more keys. Release either thumb to go back to the one you are still holding.
+
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/hyper.svg">
+  <img src="../../docs/layers/hyper.svg" alt="Hyper launcher on the Piantor. Hold Esc and Tab together. F opens Finder, D opens Brave Browser and H reloads Hammerspoon.">
+</picture>
 
 ### F-Keys · hold Super, then Space or the right Fn thumb
 
@@ -232,11 +239,11 @@ Connect the half you want to flash and use its **left** or **right** command. Wh
 
 ### Sources and diagrams
 
-The split positions come from [wrappers.h](wrappers.h), chord handling from [process_records.c](process_records.c), and Caps Word from [eduarbo.c](eduarbo.c). Run `python3 docs/draw_layout.py` to redraw all seven layers from the Piantor geometry, including the stacked views for phones. The script supplies the U.S. Shift legends and Super's host shortcuts.
+The split positions come from [wrappers.h](wrappers.h), chord handling from [process_records.c](process_records.c), and Caps Word from [eduarbo.c](eduarbo.c). Run `python3 docs/draw_layout.py` to redraw all eight maps, including the stacked views for phones. The cover, maps and brace tutorial share the same Piantor drawing. The renderer adds U.S. Shift legends, the Super shortcuts and the Hyper app names.
 
 To redraw both GIF tutorials, install `rsvg-convert` (librsvg) and ImageMagick 7, then run `python3 docs/draw_gestures.py --macbook-svg /path/to/dotfiles/macos/karabiner/docs/macbook.svg`. Each frame lights the matching physical key on the corresponding board map.
 
-The [Piantor cover](../../docs/cover/layout.gif) uses switch centers and thumb angles from [beekeeb’s Piantor PCB](https://github.com/beekeeb/piantor/tree/cd847afb4f9a86e8c1c8e36f243140644013afb2/pcb), the same keymap data as the layer diagrams, and [my Mac’s Hyper launcher map](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher). The switch geometry is by beekeeb under [GPLv3](../../docs/cover/COPYING). With the same image tools installed, run `python3 docs/cover/render.py` to regenerate the GIFs and stills. The [renderer](../../docs/cover/render.py) checks its two external inputs against pinned revisions.
+The [Piantor cover](../../docs/cover/layout.gif) uses switch centers and thumb angles from [beekeeb’s Piantor PCB](https://github.com/beekeeb/piantor/tree/cd847afb4f9a86e8c1c8e36f243140644013afb2/pcb), the same keymap data as the layer diagrams, and [my Mac’s Hyper bindings](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher). The switch geometry is by beekeeb under [GPLv3](../../docs/cover/COPYING). With the same image tools installed, run `python3 docs/cover/render.py` to regenerate the GIFs and stills. The [renderer](../../docs/cover/render.py) checks its two external inputs against pinned revisions.
 
 The [Karabiner guide](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner) covers the printed MacBook keys, profiles and app-specific rules. Its [parity tests](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/config/qmkParity.test.ts) compare the thirty finger positions on Base, Symbols and F-Keys with this userspace.
 

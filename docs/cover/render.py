@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from html import escape
 from pathlib import Path
 from urllib.request import urlopen
 from xml.etree import ElementTree as ET
@@ -13,12 +14,14 @@ from xml.etree import ElementTree as ET
 HERE = Path(__file__).resolve().parent
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(HERE.parent))
+from cover.launcher import hyper_keys
+from cover.tour import ESC, TOUR
 from draw_layout import read_keymap
 from layer_art import legend, rect, text
-from tour import ESC, TOUR
 
 PCB = "https://raw.githubusercontent.com/beekeeb/piantor/cd847afb4f9a86e8c1c8e36f243140644013afb2/pcb/left/keyboard_pcb.kicad_pcb"
-LAUNCHER = "https://raw.githubusercontent.com/eduarbo/dotfiles/1bc5984127eefbd46bdf3b0e4034b4e6df126f12/macos/hammerspoon/docs/launcher.svg"
+BINDINGS = "https://raw.githubusercontent.com/eduarbo/dotfiles/1bc5984127eefbd46bdf3b0e4034b4e6df126f12/macos/hammerspoon/config/bindings.lua"
+LEGACY_LAUNCHER = "https://raw.githubusercontent.com/eduarbo/dotfiles/1bc5984127eefbd46bdf3b0e4034b4e6df126f12/macos/hammerspoon/docs/launcher.svg"
 DARK, FACE, INK = "#193132", "#f6f0e0", "#183131"
 MINT, AMBER, MUTED = "#a3eccb", "#ffc28e", "#bdd0c8"
 NS = "{http://www.w3.org/2000/svg}"
@@ -67,9 +70,17 @@ def switches():
 
 
 def hyper_map(physical, base):
+    if not os.environ.get("HYPER_LAUNCHER_SVG"):
+        bindings = source(
+            "HYPER_BINDINGS_LUA",
+            BINDINGS,
+            "357840eccc166be6864da23ea3643dc82d060ad7fb7ee7a37bef07ca43c45c85",
+        )
+        return hyper_keys(bindings.decode(), physical, base)
+    # Accept the original pinned SVG for existing offline builds.
     svg = source(
         "HYPER_LAUNCHER_SVG",
-        LAUNCHER,
+        LEGACY_LAUNCHER,
         "9db6b0229653e72080cdfc727bacb3088c1a3880609b597c964d5fbb1157367d",
     )
     apps = {}
@@ -109,7 +120,7 @@ def maps():
     return physical, layers
 
 
-def keycap(angle, index, physical, binding, frame):
+def keycap(angle, index, physical, binding, frame, active_roles=None):
     key = legend(binding)
     held, tapped = index in frame.held, index == frame.tap
     tap, hold, alternate = key["t"], key.get("h", ""), key.get("s", "")
@@ -119,6 +130,8 @@ def keycap(angle, index, physical, binding, frame):
         alternate = ""
     elif tapped:
         tap, hold, alternate = physical, "tap", ""
+    if active_roles and index in active_roles:
+        hold = active_roles[index]
     blank = not tap
     fill = "#d7dfd3" if key.get("type") == "trans" else FACE
     if held:
@@ -128,9 +141,9 @@ def keycap(angle, index, physical, binding, frame):
     elif blank:
         fill = "#344b4c"
     body = [
-        f'<g transform="rotate({angle:g})">',
+        f'<g id="key-{index}" data-position="{escape(physical, quote=True)}" transform="rotate({angle:g})">',
         rect(-41, -36, 82, 76, 9, "#0e2426"),
-        rect(-41, -38, 82, 74, 9, fill),
+        rect(-41, -38, 82, 74, 9, fill, 'class="face"'),
     ]
     show_position = physical != tap and (tap or frame.layer in {"Hyper", "Super"})
     if show_position and frame.layer not in {"macOS base", "Winux base"}:
@@ -179,9 +192,21 @@ def keycap(angle, index, physical, binding, frame):
     return "".join(body + ["</g>"])
 
 
-def draw(halves, physical, layers, frame, mobile):
+def draw(
+    halves,
+    physical,
+    layers,
+    frame,
+    mobile,
+    *,
+    heading=None,
+    typed=None,
+    active_roles=None,
+):
+    if len(physical) != 36 or len(layers[frame.layer]) != 36:
+        raise ValueError(f"{frame.layer} needs 36 physical positions and bindings")
     w, h = (520, 884) if mobile else (1200, 552)
-    title = {
+    title = heading or {
         "macOS base": "Base · macOS",
         "Winux base": "Base · Winux",
         "Super": "Super · ⌘⌥⌃",
@@ -189,11 +214,18 @@ def draw(halves, physical, layers, frame, mobile):
     }.get(frame.layer, frame.layer)
     pad = 23 if mobile else 34
     svg = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">',
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">',
+        f'<title id="title">Piantor · {escape(title)}</title><desc id="desc">{escape(frame.cue)}</desc>',
         rect(0, 0, w, h, 0, DARK),
         text(pad, 32, "PIANTOR   /   36", 16, color=MUTED, mono=True, weight=650),
         text(pad, 79, title, 44 if mobile else 49, color=FACE, weight=720),
     ]
+    if typed:
+        svg.append(
+            text(
+                w - pad, 32, "Typed   " + typed, 21, color=FACE, align="end", weight=650
+            )
+        )
     if mobile:
         svg.append(text(pad, 117, frame.cue, 23, color=MINT, weight=600))
     else:
@@ -218,10 +250,11 @@ def draw(halves, physical, layers, frame, mobile):
                     physical[index],
                     layers[frame.layer][index],
                     frame,
+                    active_roles,
                 )
             )
             svg.append("</g>")
-    return "".join(svg + ["</svg>"])
+    return "\n".join(svg + ["</svg>"])
 
 
 def main():
