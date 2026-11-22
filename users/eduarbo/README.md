@@ -1,27 +1,15 @@
 # Eduardo's 36-key layout
 
-[Find a key](#find-a-key) · [Demo stills](#the-demo-at-your-own-pace) · [Base and thumbs](#base-and-thumbs) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
+[Find a key](#find-a-key) · [Base and thumbs](#base-and-thumbs) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
 
 <picture>
   <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="../../docs/cover/layout-mobile.webp">
   <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/cover/layout.webp">
   <source media="(max-width: 600px)" srcset="../../docs/cover/layout-mobile.gif">
-  <img src="../../docs/cover/layout.gif" alt="My Piantor on macOS. The loop shows F16 opening Raycast, thumb Shift for a capital A, cursor down, browser back and mute. Each step names the physical key.">
+  <img src="../../docs/cover/layout.gif" alt="The 36 Piantor keys change legends as I hold or release the layer thumbs. The loop covers both bases, Symbols, Super, Hyper, F-Keys, Adjust and Gamepad. Held keys are mint. A tap to switch modes is orange.">
 </picture>
 
 The [Piantor](https://github.com/beekeeb/piantor) is my daily driver. My 3×5 Corne and MacBook use the same finger positions. I keep the arrows on `H J K L` so I can move the cursor with my right hand, and put my browser shortcuts on the left so I can keep the other hand on the mouse. The splits run QMK. On the laptop, Karabiner-Elements gives the keys around the space bar the jobs of the six split thumbs.
-
-## The demo at your own pace
-
-Each link opens a still of that gesture. Read a row from left to right. Keep each hold down while you tap, then release.
-
-| Gesture on my Piantor | Hold | Tap | Result on my Mac |
-| --- | --- | --- | --- |
-| [Open Raycast](../../docs/cover/steps/raycast.webp) | — | **F16** · right outer thumb | Raycast opens. F16 is my launcher shortcut. |
-| [Type a capital](../../docs/cover/steps/capital.webp) | **Space** for Shift | **A** | `A` |
-| [Move the cursor](../../docs/cover/steps/cursor.webp) | **Tab** for Symbols | **J** | ↓ one line |
-| [Go back in the browser](../../docs/cover/steps/back.webp) | **Esc** for Super | **D** | ⌘[ goes back |
-| [Mute the audio](../../docs/cover/steps/mute.webp) | **Esc**, then **F16** for F-Keys | **K** | Mute |
 
 ## Find a key
 
@@ -49,16 +37,22 @@ Letters below name the physical QWERTY positions. Character examples use U.S. in
 
 You can also [look up every punctuation pair on Symbols](#symbols--hold-tab) or read [why I added two spare Shifts for MacBook rollover](#macbook-rollover-and-shift).
 
+<a id="the-demo-at-your-own-pace"></a>
+
 ## Layers
 
-| Hold to reach | Piantor / Corne | MacBook · printed keys |
+Open any name for a still of the Piantor. Mint keys are held. An orange key is tapped to change modes. Super and Hyper send modifier chords for shortcuts on my Mac.
+
+| Map | Piantor / Corne | MacBook · printed keys |
 | --- | --- | --- |
-| Symbols | Tab thumb | Right ⌘ |
-| Super · ⌘⌥⌃ | Esc thumb | Left ⌥ |
-| Hyper · ⌘⌥⌃⇧ | Esc + Tab thumbs, either order | Left ⌥ + right ⌘, either order |
-| F-Keys | Esc first, then Space or F16 thumb | Left ⌥ first, then space bar or right ⌥ |
-| Adjust | Esc + either Return thumb | QMK only |
-| Gamepad | On Adjust, tap `J` to toggle | QMK only |
+| [macOS base](../../docs/cover/layout.webp) | Default on power-up | Default profile |
+| [Symbols](../../docs/cover/steps/symbols.webp) | Hold Tab | Hold right ⌘ |
+| [Hyper · ⌘⌥⌃⇧](../../docs/cover/steps/hyper.webp) | Hold Tab + Esc, either order | Hold right ⌘ + left ⌥, either order |
+| [Super · ⌘⌥⌃](../../docs/cover/steps/super.webp) | Hold Esc | Hold left ⌥ |
+| [F-Keys](../../docs/cover/steps/fkeys.webp) | Hold Esc, then Space or F16 | Hold left ⌥, then space bar or right ⌥ |
+| [Adjust](../../docs/cover/steps/adjust.webp) | Hold Esc + either Return thumb | QMK only |
+| [Gamepad](../../docs/cover/steps/gamepad.webp) | In Adjust, tap `J` and release the thumbs. To leave, hold Alt + right Return and tap `J`. | QMK only |
+| [Winux base](../../docs/cover/steps/winux.webp) | In Adjust, tap `K` and release the thumbs. Repeat to switch back. | QMK only |
 
 ### Base and thumbs
 
@@ -242,7 +236,7 @@ The split positions come from [wrappers.h](wrappers.h), chord handling from [pro
 
 To redraw both GIF tutorials, install `rsvg-convert` (librsvg) and ImageMagick 7, then run `python3 docs/draw_gestures.py --macbook-svg /path/to/dotfiles/macos/karabiner/docs/macbook.svg`. Each frame lights the matching physical key on the corresponding board map.
 
-The [Piantor cover](../../docs/cover/layout.gif) uses the switch centers, thumb angles and PCB outline from [beekeeb’s Piantor PCB](https://github.com/beekeeb/piantor/tree/cd847afb4f9a86e8c1c8e36f243140644013afb2/pcb) and the same keymap data as the layer maps above. The board geometry is by beekeeb under [GPLv3](../../docs/cover/COPYING). To [render](../../docs/cover/render.py) the desktop and phone GIFs and their still frames, run `blender -b --factory-startup --python-exit-code 1 -P docs/cover/render.py`.
+The [Piantor cover](../../docs/cover/layout.gif) uses switch centers and thumb angles from [beekeeb’s Piantor PCB](https://github.com/beekeeb/piantor/tree/cd847afb4f9a86e8c1c8e36f243140644013afb2/pcb), the same keymap data as the layer diagrams, and [my Mac’s Hyper launcher map](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher). The switch geometry is by beekeeb under [GPLv3](../../docs/cover/COPYING). With the same image tools installed, run `python3 docs/cover/render.py` to regenerate the GIFs and stills. The [renderer](../../docs/cover/render.py) checks its two external inputs against pinned revisions.
 
 The [Karabiner guide](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner) covers the printed MacBook keys, profiles and app-specific rules. Its [parity tests](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/config/qmkParity.test.ts) compare the thirty finger positions on Base, Symbols and F-Keys with this userspace.
 

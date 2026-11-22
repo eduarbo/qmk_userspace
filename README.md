@@ -10,10 +10,10 @@ keyboard mirrors it with
   <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="docs/cover/layout-mobile.webp">
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/cover/layout.webp">
   <source media="(max-width: 600px)" srcset="docs/cover/layout-mobile.gif">
-  <img src="docs/cover/layout.gif" alt="My Piantor on macOS. The loop shows F16 opening Raycast, thumb Shift for a capital A, cursor down, browser back and mute. Each step names the physical key.">
+  <img src="docs/cover/layout.gif" alt="The 36 Piantor keys change legends as I hold or release the layer thumbs. The loop covers both bases, Symbols, Super, Hyper, F-Keys, Adjust and Gamepad. Held keys are mint. A tap to switch modes is orange.">
 </picture>
 
-[Read the five gestures at your own pace](users/eduarbo/README.md#the-demo-at-your-own-pace)
+[Open a layer map at your own pace](users/eduarbo/README.md#layers)
 
 | Target | Hardware |
 | --- | --- |
