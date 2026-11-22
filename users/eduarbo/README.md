@@ -1,17 +1,13 @@
 # Eduardo's 36-key layout
 
-I use the same letter positions on my [Piantor](https://github.com/beekeeb/piantor), my 3×5 Corne and my MacBook. I keep the arrows on `H J K L` so I can move the cursor with my right hand, and put my browser shortcuts on the left so I can keep the other hand on the mouse. The splits run QMK. On the laptop, Karabiner-Elements gives the keys around the space bar the jobs of the six split thumbs.
-
-[Find a key](#find-a-key) · [MacBook rollover and Shift](#macbook-rollover-and-shift) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
+[Find a key](#find-a-key) · [Base and thumbs](#base-and-thumbs) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
 
 <picture>
-  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="../../docs/layers/mobile/symbols.svg">
-  <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/layers/symbols.svg">
-  <source media="(max-width: 600px)" srcset="../../docs/gestures/split-braces-mobile.gif">
-  <img src="../../docs/gestures/split-braces.gif" alt="Type {} on the split. Hold the Tab thumb and A, tap U then I, and release both holds.">
+  <source media="(max-width: 600px)" srcset="../../docs/cover/layout-mobile.webp">
+  <img src="../../docs/cover/layout.webp" alt="The 36-key split above its MacBook equivalents. The six split thumbs correspond to left Option, left Command, the space bar, right Command and right Option. Both inner Return thumbs share the space bar.">
 </picture>
 
-[Open the braces GIF](../../docs/gestures/split-braces.gif) · [Static base map](#base-and-thumbs)
+I use the same letter positions on my [Piantor](https://github.com/beekeeb/piantor), my 3×5 Corne and my MacBook. I keep the arrows on `H J K L` so I can move the cursor with my right hand, and put my browser shortcuts on the left so I can keep the other hand on the mouse. The splits run QMK. On the laptop, Karabiner-Elements gives the keys around the space bar the jobs of the six split thumbs.
 
 ## Find a key
 
@@ -30,28 +26,7 @@ For **Symbols**, hold the **Tab thumb** on the split or **right ⌘** on the Mac
 | Press F5 or mute the audio | On the split, hold **Esc**, then hold the **Space thumb**. On the MacBook, hold **left ⌥**, then hold the **space bar**. Tap `D` for **F5** or `K` for **mute**. |
 | Open Finder with my app launcher | Hold Super and Symbols together, then tap `F`. [All launcher bindings](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher) |
 
-You can also [look up every punctuation pair on Symbols](#symbols--hold-tab).
-
-### MacBook rollover and Shift
-
-On my MacBook's built-in keyboard, some combinations of physical keys held together don't all register. With full **N-key rollover (NKRO)**, every held key registers even as I press another. Karabiner can only remap the events the keyboard actually sends. I ran into this trying to hold my usual Shift and Symbols while typing a third key.
-
-I gave **both pinkies a Shift inside Symbols**. I can use the opposite hand for Shift and choose a different physical chord for the same character. Both positions send **left Shift** when held. A quick tap still gives me the dead key I need to write Spanish. I kept those positions in QMK, too.
-
-<picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/symbols-tap-hold.svg">
-  <source media="(max-width: 600px)" srcset="../../docs/gestures/macbook-symbols-mobile.gif">
-  <img src="../../docs/gestures/macbook-symbols.gif" alt="On a MacBook, hold right Command. Tap semicolon, release the layer and tap N for ñ. Hold right Command and semicolon, then tap B for underscore.">
-</picture>
-
-[Open the MacBook GIF](../../docs/gestures/macbook-symbols.gif) · [Still tap/hold sequence](../../docs/symbols-tap-hold.svg)
-
-| While holding Symbols | Tap the key | Hold the key and tap another |
-| --- | --- | --- |
-| `A` · left pinky | Acute dead key · release Symbols, then `E` gives **é** | Tap `U` for **{** or `I` for **}** |
-| `;` · right pinky | Tilde dead key · release Symbols, then `N` gives **ñ** | Tap `B` for **_** or `W` for **&** |
-
-For a literal ASCII tilde (`~`), hold Symbols and `A`, then tap `N`. On the MacBook **base**, I also have dedicated Shifts at **Caps Lock** (left Shift) and the **quote key** (right Shift). [MacBook keycap map](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner)
+You can also [look up every punctuation pair on Symbols](#symbols--hold-tab) or read [why my MacBook has two Shifts on that layer](#macbook-rollover-and-shift).
 
 ## Layers
 
@@ -138,6 +113,40 @@ For `:`, use ordinary Shift with `;` on the **base**.
 
 **Caps Word.** Symbols + `Z` toggles QMK Caps Word. Try `ABC-123` followed by a space. Digits, hyphen, apostrophe, semicolon, grave, Backspace and Delete keep it going unshifted. Space ends the word. Karabiner uses the same position for **Caps Lock**. Tap it again to switch it off.
 
+#### Type a pair of braces
+
+Hold the **Tab thumb** for Symbols. Keep **A** down for Shift and tap **U**, then **I**, to type `{}`.
+
+<picture>
+  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="../../docs/layers/mobile/symbols.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/layers/symbols.svg">
+  <source media="(max-width: 600px)" srcset="../../docs/gestures/split-braces-mobile.gif">
+  <img src="../../docs/gestures/split-braces.gif" alt="Type {} on the split. Hold the Tab thumb and A, tap U then I, and release both holds.">
+</picture>
+
+[Open the braces GIF](../../docs/gestures/split-braces.gif)
+
+#### MacBook rollover and Shift
+
+On my MacBook's built-in keyboard, some combinations of physical keys held together don't all register. With full **N-key rollover (NKRO)**, every held key registers even as I press another. Karabiner can only remap the events the keyboard actually sends. I ran into this trying to hold my usual Shift and Symbols while typing a third key.
+
+I gave **both pinkies a Shift inside Symbols**. I can use the opposite hand for Shift and choose a different physical chord for the same character. Both positions send **left Shift** when held. A quick tap still gives me the dead key I need to write Spanish. I kept those positions in QMK, too.
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/symbols-tap-hold.svg">
+  <source media="(max-width: 600px)" srcset="../../docs/gestures/macbook-symbols-mobile.gif">
+  <img src="../../docs/gestures/macbook-symbols.gif" alt="On a MacBook, hold right Command. Tap semicolon, release the layer and tap N for ñ. Hold right Command and semicolon, then tap B for underscore.">
+</picture>
+
+[Open the MacBook GIF](../../docs/gestures/macbook-symbols.gif) · [Still tap/hold sequence](../../docs/symbols-tap-hold.svg)
+
+| While holding Symbols | Tap the key | Hold the key and tap another |
+| --- | --- | --- |
+| `A` · left pinky | Acute dead key · release Symbols, then `E` gives **é** | Tap `U` for **{** or `I` for **}** |
+| `;` · right pinky | Tilde dead key · release Symbols, then `N` gives **ñ** | Tap `B` for **_** or `W` for **&** |
+
+For a literal ASCII tilde (`~`), hold Symbols and `A`, then tap `N`. On the MacBook **base**, I also have dedicated Shifts at **Caps Lock** (left Shift) and the **quote key** (right Shift). [MacBook keycap map](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner)
+
 ### Super · hold Esc
 
 <picture>
@@ -211,6 +220,8 @@ Connect the half you want to flash and use its **left** or **right** command. Wh
 The split positions come from [wrappers.h](wrappers.h), chord handling from [process_records.c](process_records.c), and Caps Word from [eduarbo.c](eduarbo.c). Run `python3 docs/draw_layout.py` to redraw all seven layers from the Piantor geometry, including the stacked views for phones. The script supplies the U.S. Shift legends and Super's host shortcuts.
 
 To redraw both GIF tutorials, install `rsvg-convert` (librsvg) and ImageMagick 7, then run `python3 docs/draw_gestures.py --macbook-svg /path/to/dotfiles/macos/karabiner/docs/macbook.svg`. Each frame lights the matching physical key on the corresponding board map.
+
+The [cover illustration](../../docs/cover/render.py) uses the macOS base map for its geometry and thumb legends. Regenerate it with `blender -b --factory-startup --python-exit-code 1 -P docs/cover/render.py` using the same image tools.
 
 The [Karabiner guide](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner) covers the printed MacBook keys, profiles and app-specific rules. Its [parity tests](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/config/qmkParity.test.ts) compare the thirty finger positions on Base, Symbols and F-Keys with this userspace.
 

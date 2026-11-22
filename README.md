@@ -4,11 +4,11 @@ Firmware for my Piantor and Corne, two 36-key splits that share one keymap. The 
 keyboard mirrors it with
 [Karabiner-Elements](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner).
 
-**[Find a key or shortcut](users/eduarbo/README.md#find-a-key)** · [Why Symbols has two Shifts](users/eduarbo/README.md#macbook-rollover-and-shift) · [All layer maps](users/eduarbo/README.md#layers) · [Build and flash](users/eduarbo/README.md#build-and-flash)
+**[Find a key or shortcut](users/eduarbo/README.md#find-a-key)** · [Split and MacBook thumbs](users/eduarbo/README.md#base-and-thumbs) · [All layer maps](users/eduarbo/README.md#layers) · [Build and flash](users/eduarbo/README.md#build-and-flash)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="docs/layers/mobile/macos.svg">
-  <img src="docs/layers/macos.svg" alt="QWERTY split with tap and hold actions on the six thumbs">
+  <source media="(max-width: 600px)" srcset="docs/cover/layout-mobile.webp">
+  <img src="docs/cover/layout.webp" alt="The 36-key split above its MacBook equivalents. The six split thumbs correspond to left Option, left Command, the space bar, right Command and right Option. Both inner Return thumbs share the space bar.">
 </picture>
 
 | Target | Hardware |
