@@ -1,30 +1,32 @@
-"""Build the README covers with Blender, rsvg-convert and ImageMagick 7.
+"""Render the Piantor from the pinned PCB and compose both README animations.
 
-Run from the repository root: blender -b --factory-startup --python-exit-code 1 -P docs/cover/render.py
+blender -b --factory-startup --python-exit-code 1 -P docs/cover/render.py
+Set PIANTOR_LEFT_PCB for an offline build. The two PCB halves are mirror images.
 """
 
+import hashlib
 import math
-import subprocess
+import os
+import re
+import sys
 import tempfile
-from html import escape
 from pathlib import Path
-from xml.etree import ElementTree as ET
+from urllib.request import urlopen
 
 import bpy
+from bpy_extras.object_utils import world_to_camera_view
 from mathutils import Vector
 
 HERE = Path(__file__).resolve().parent
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(HERE))
+from tour import animate
+
 SCENE = bpy.context.scene
-NS = "{http://www.w3.org/2000/svg}"
-PAPER = "#f6efdf"
-INK = "#182c31"
-ACCENTS = {
-    "Super": "#bca2f3",
-    "Shift": "#e8bb85",
-    "Cmd": "#8ccebc",
-    "Symbols": "#a2c9ec",
-    "Ctrl": "#e19f95",
-}
+REV = "cd847afb4f9a86e8c1c8e36f243140644013afb2"
+PCB = f"https://raw.githubusercontent.com/beekeeb/piantor/{REV}/pcb/left/keyboard_pcb.kicad_pcb"
+SHA256 = "9e4333e7cbea29ddf55aef41336867b514ba896b76d31e6b5a08a6b9183c3a9d"
+WIDTH, HEIGHT = 720, 554
 
 
 def material(name, color, roughness=0.38, metal=0):
@@ -79,112 +81,6 @@ def rounded(width, depth, z, radius):
     return outline
 
 
-def lettering(value, x, y, z, size, mat, parent):
-    font = bpy.data.curves.new(value, "FONT")
-    font.body = value
-    font.align_x = font.align_y = "CENTER"
-    font.size = size
-    obj = bpy.data.objects.new(value, font)
-    SCENE.collection.objects.link(obj)
-    obj.parent = parent
-    obj.location = (x, y, z)
-    # Printed legends sit optically flush with the dished key surface.
-    obj.visible_shadow = False
-    obj.data.materials.append(mat)
-
-
-def build_split():
-    board = ET.parse(HERE.parent / "layers/macos.svg").getroot()
-    ivory = material("Ivory keycaps", "#eadfc9")
-    dark = material("Legends", "#101e21", 0.78)
-    dark.node_tree.nodes["Principled BSDF"].inputs[
-        "Specular IOR Level"
-    ].default_value = 0.03
-    body = material("Pine enclosure", "#375256", 0.27, 0.36)
-    seam = material("Case seam", "#162a2c", 0.44)
-    function_mats = {key: material(key, color) for key, color in ACCENTS.items()}
-    positions = []
-    roles = []
-    for side in ["left", "right"]:
-        group = board.find(f".//{NS}g[@id='{side}-hand']")
-        half = bpy.data.objects.new(side, None)
-        SCENE.collection.objects.link(half)
-        # Use real column stagger and thumb positions. The two drawing axes have different pitches.
-        caps = []
-        for g in group.findall(NS + "g"):
-            x, y = map(
-                float,
-                g.get("transform").removeprefix("translate(").removesuffix(")").split(),
-            )
-            lines = ["".join(t.itertext()) for t in g.findall(NS + "text")]
-            caps.append(((x - 39) / 74, -(y - 131) / 61, lines))
-        center_x = sum(x for x, y, labels in caps) / len(caps)
-        center_y = sum(y for x, y, labels in caps) / len(caps)
-        half.location = ((center_x - 5.5) * 1.08, center_y + 1.7, 0.02)
-        half.rotation_euler.z = math.radians(-12 if side == "left" else 12)
-        shape = group.find(NS + "polygon")
-        points = []
-        for pair in shape.get("points").split():
-            x, y = map(float, pair.split(","))
-            points.append(
-                ((x - 39) / 74 - 0.45 - center_x, -(y - 131) / 61 + 0.47 - center_y)
-            )
-        points.reverse()
-        for name, levels, mat, edge in [
-            ("Base", (0.01, 0.26), body, 0.09),
-            ("Gasket", (0.22, 0.295), seam, 0.02),
-            ("Plate", (0.285, 0.37), body, 0.035),
-        ]:
-            solid(
-                name,
-                [[(x * 1.045, y * 1.065, z) for x, y in points] for z in levels],
-                mat,
-                half,
-                edge,
-            )
-        for x, y, labels in caps:
-            x -= center_x
-            y -= center_y
-            tap = labels[0]
-            hold = labels[1] if len(labels) > 1 else None
-            if hold:
-                roles.append((tap, hold))
-            # Three bevels and a lowered center give the cap a dished, low-profile top.
-            profile = [
-                (0.90, 0.90, 0.39, 0.09),
-                (0.94, 0.94, 0.44, 0.12),
-                (0.85, 0.85, 0.62, 0.12),
-                (0.78, 0.78, 0.665, 0.115),
-                (0.68, 0.68, 0.667, 0.11),
-                (0.54, 0.54, 0.65, 0.095),
-                (0.32, 0.32, 0.629, 0.08),
-                (0.15, 0.15, 0.625, 0.05),
-            ]
-            key = solid(
-                tap,
-                [rounded(*ring) for ring in profile],
-                function_mats.get(hold, ivory),
-                half,
-            )
-            key.location = (x, y, 0)
-            if tap == "⌫":
-                tap = "Bksp"
-            lettering(
-                tap,
-                x,
-                y + (0.094 if hold else 0),
-                0.675,
-                0.21 if len(tap) > 1 else 0.28,
-                dark,
-                half,
-            )
-            if hold:
-                lettering(hold, x, y - 0.14, 0.675, 0.137, dark, half)
-            positions.append((half, x, y))
-    assert len(positions) == 36 and len(roles) == 6 and roles[2] == roles[3]
-    return positions, roles[:3] + roles[4:]
-
-
 def area(name, pos, energy, size, color):
     lamp = bpy.data.lights.new(name, "AREA")
     lamp.energy, lamp.shape, lamp.size, lamp.color = energy, "DISK", size, color
@@ -196,177 +92,254 @@ def area(name, pos, energy, size, color):
     )
 
 
-def render_scene(out):
+def read_pcb():
+    path = os.environ.get("PIANTOR_LEFT_PCB")
+    data = Path(path).read_bytes() if path else urlopen(PCB, timeout=30).read()
+    if hashlib.sha256(data).hexdigest() != SHA256:
+        raise ValueError("Piantor PCB does not match the pinned source")
+    source = data.decode()
+    parts = {}
+    for block in source.split("\n  (footprint ")[1:]:
+        ref = re.search(r'\(fp_text reference "([^"]+)"', block)[1]
+        at = [float(n) for n in re.search(r"\(at ([^)]+)", block)[1].split()]
+        parts[ref] = at if len(at) == 3 else at + [0]
+    # Follow Edge.Cuts after snapping off the optional sixth column at its mouse bites.
+    start, seam = (81.6, 62.4), (81.6, 111.6)
+    edges = {}
+    for line in source.splitlines():
+        if '(layer "Edge.Cuts")' not in line or "(gr_" not in line:
+            continue
+        pts = [
+            tuple(round(float(v), 4) for v in pair.split())
+            for pair in re.findall(r"\((?:start|mid|end) ([-.\d ]+)\)", line)
+        ]
+        if not pts or min(x for x, _ in pts) < 81.6:
+            continue
+        if all(x == 81.6 for x, _ in pts):
+            continue
+        edges[pts[0]] = edges.get(pts[0], []) + [pts]
+        edges[pts[-1]] = edges.get(pts[-1], []) + [pts[::-1]]
+    outline = [start]
+    prev, here = None, start
+    while here != seam:
+        (segment,) = (seg for seg in edges[here] if seg[-1] != prev)
+        if len(segment) == 3:
+            a, m, b = map(Vector, segment)
+            control = 2 * m - (a + b) / 2
+            for i in range(1, 8):
+                t = i / 8
+                outline.append(
+                    tuple((1 - t) ** 2 * a + 2 * (1 - t) * t * control + t * t * b)
+                )
+        outline.append(segment[-1])
+        prev, here = here, segment[-1]
+    return parts, outline
+
+
+def build(side, parts, outline):
+    sign = 1 if side == "left" else -1
+
+    def xy(x, y):
+        return (sign * (x - 142.2) / 18, (88.3 - y) / 18)
+
+    half = bpy.data.objects.new(side, None)
+    SCENE.collection.objects.link(half)
+    half.rotation_euler.z = math.radians(-4.2 * sign)
+    pcb = material("Solder mask", "#174b45", 0.42)
+    fr4 = material("Board edge", "#b29b6f", 0.5)
+    black = material("Plate and sockets", "#232c31", 0.32)
+    graphite = material("Graphite", "#424648", 0.4)
+    silver = material("Brushed steel", "#aab2b4", 0.29, 0.76)
+    gold = material("Plated pads", "#c9ae71", 0.34, 0.45)
+    green = material("Pico board", "#246b50", 0.45)
+    ivory = material("Porcelain keycaps", "#f0e8d5", 0.35)
+    apricot = material("Thumb keycaps", "#d7a581", 0.36)
+
+    def block(name, x, y, z, w, h, thick, mat, radius=0.04):
+        obj = solid(
+            name, [rounded(w, h, level, radius) for level in (0, thick)], mat, half
+        )
+        obj.location = (x, y, z)
+        return obj
+
+    def pcb_sheet(name, lower, upper, mat):
+        pts = [xy(*p) for p in outline]
+        if (
+            sum((pts[i - 1][0] * y - x * pts[i - 1][1]) for i, (x, y) in enumerate(pts))
+            < 0
+        ):
+            pts.reverse()
+        solid(
+            name,
+            [[(x, y, z) for x, y in pts] for z in (lower, upper)],
+            mat,
+            half,
+            0.015,
+        )
+
+    pcb_sheet("Bottom plate", 0, 0.12, black)
+    pcb_sheet("Laminate", 0.14, 0.215, fr4)
+    pcb_sheet("Piantor PCB", 0.215, 0.24, pcb)
+    x, y = xy(*parts["U2"][:2])
+    block("Headers", x, y, 0.245, 1.06, 2.66, 0.15, black)
+    block("Raspberry Pi Pico", x, y, 0.396, 21 / 18, 51 / 18, 0.07, green, 0.072)
+    block("Micro USB shell", x, y + 1.34, 0.466, 0.46, 0.30, 0.14, silver, 0.03)
+    block("USB opening", x, y + 1.484, 0.48, 0.34, 0.028, 0.08, black, 0.008)
+    block("RP2040", x, y - 0.19, 0.468, 0.40, 0.40, 0.064, graphite, 0.022)
+    block("BOOTSEL", x - 0.23, y + 0.63, 0.466, 0.19, 0.14, 0.057, silver, 0.018)
+    block("Flash", x + 0.18, y + 0.38, 0.466, 0.19, 0.25, 0.045, black, 0.018)
+    block("Crystal", x - 0.26, y - 0.65, 0.466, 0.18, 0.13, 0.05, silver, 0.012)
+    silk = material("Silkscreen", "#f7f0d8", 0.65)
+
+    def print_pcb(value, px, py, size):
+        font = bpy.data.curves.new(value, "FONT")
+        font.body, font.size, font.align_x = value, size, "CENTER"
+        obj = bpy.data.objects.new(value, font)
+        SCENE.collection.objects.link(obj)
+        obj.parent = half
+        obj.location = (px, py, 0.478)
+        obj.data.materials.append(silk)
+
+    print_pcb("Pico", x, y - 1.02, 0.17)
+    print_pcb("RP2040", x, y + 0.075, 0.09)
+    print_pcb("BOOTSEL", x, y + 0.83, 0.07)
+    for dx, dy in [
+        (-0.27, 0.21),
+        (0.24, -0.46),
+        (0.27, -0.64),
+        (-0.28, -0.43),
+        (0.13, 0.56),
+        (0.29, 0.12),
+        (-0.22, 0.94),
+    ]:
+        block("SMD contact", x + dx, y + dy, 0.468, 0.098, 0.048, 0.012, silver, 0.009)
+        block("Passive", x + dx, y + dy, 0.48, 0.057, 0.046, 0.012, graphite, 0.006)
+    for dx in (-0.31, 0.31):
+        for dy in (-1.17, 1.16):
+            block(
+                "Pico mounting pad",
+                x + dx,
+                y + dy,
+                0.468,
+                0.13,
+                0.13,
+                0.011,
+                gold,
+                0.063,
+            )
+            block(
+                "Mounting bore", x + dx, y + dy, 0.48, 0.085, 0.085, 0.005, black, 0.04
+            )
+    for n in range(20):
+        for dx in (-0.49, 0.49):
+            block(
+                "Castellated pad",
+                x + dx,
+                y + (9.5 - n) * 2.54 / 18,
+                0.468,
+                0.13,
+                0.071,
+                0.008,
+                gold,
+                0.028,
+            )
+            block(
+                "Plated bore",
+                x + dx,
+                y + (9.5 - n) * 2.54 / 18,
+                0.478,
+                0.042,
+                0.042,
+                0.005,
+                black,
+                0.020,
+            )
+    x, y = xy(*parts["J1"][:2])
+    block("TRRS jack", x - sign * 0.38, y, 0.24, 0.78, 0.36, 0.28, black)
+    for ref in ("H1", "H2", "H3", "H4"):
+        x, y = xy(*parts[ref][:2])
+        block("Mounting screw", x, y, 0.24, 0.19, 0.19, 0.035, silver, 0.088)
+        block("Hex recess", x, y, 0.276, 0.078, 0.078, 0.005, black, 0.026)
+    positions = {}
+    for row in range(4):
+        for col in (range(3) if row == 3 else range(1, 6)):
+            ref = f"K{row}{col}"
+            x, y, deg = parts[ref]
+            x, y = xy(x, y)
+            index = (
+                (30 + (col if sign == 1 else 5 - col))
+                if row == 3
+                else row * 10 + (col - 1 if sign == 1 else 10 - col)
+            )
+            # Choc spacing is 18 × 17 mm. Each ring follows the skirt, bevel or dish.
+            profile = [
+                (17.4, 16.4, 4.55, 1.5),
+                (17.5, 16.5, 5.15, 1.7),
+                (16.8, 15.8, 6.9, 1.7),
+                (15.9, 14.9, 7.45, 1.8),
+                (14.8, 13.8, 7.52, 1.7),
+                (12.2, 11.2, 7.32, 1.5),
+                (8.4, 7.4, 7.03, 1.4),
+                (4.3, 3.3, 6.92, 0.9),
+            ]
+            key = solid(
+                ref,
+                [rounded(*(v / 18 for v in ring)) for ring in profile],
+                apricot if row == 3 else ivory,
+                half,
+            )
+            key.location = (x, y, 0.06)
+            key.rotation_euler.z = math.radians(sign * deg)
+            positions[index] = key
+    return positions
+
+
+def render_half(folder, side, parts, outline):
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
-    positions, roles = build_split()
-    bpy.ops.mesh.primitive_plane_add(size=200)
-    bpy.context.object.data.materials.append(material("Backdrop", "#233e43", 0.60))
-    area("Softbox", (-5, 4, 12), 1750, 9, (1, 0.91, 0.78))
-    area("Cool fill", (4, -3, 8), 850, 8, (0.76, 0.90, 1))
-    area("Rim", (5, 5, 5), 550, 6, (0.67, 1, 0.87))
-    SCENE.world.color = (0.18, 0.18, 0.18)
+    positions = build(side, parts, outline)
+    area("Window", (-4, 5, 9), 930, 7, (1, 0.94, 0.83))
+    area("Bounce", (4, -4, 7), 490, 6, (0.81, 0.91, 1))
+    area("Rim", (4, 5, 4), 230, 5, (0.84, 1, 0.93))
+    SCENE.world.color = (0.2, 0.2, 0.2)
     SCENE.render.engine = "CYCLES"
-    SCENE.cycles.samples = 48
+    SCENE.cycles.samples = 24
     SCENE.cycles.use_denoising = True
-    camera = bpy.data.cameras.new("Cover")
-    cam = bpy.data.objects.new("Cover", camera)
+    camera = bpy.data.cameras.new("Overhead")
+    cam = bpy.data.objects.new("Overhead", camera)
     SCENE.collection.objects.link(cam)
     SCENE.camera = cam
+    direction = Vector((0, -0.37, 1)).normalized()
+    cam.location = Vector((0, 0, 0.2)) + direction * 18
+    cam.rotation_euler = (-direction).to_track_quat("-Z", "Y").to_euler()
     camera.type = "ORTHO"
-    direction = Vector((1.0, -11.0, 15.2)).normalized()
-    rotation = (-direction).to_track_quat("-Z", "Y")
-    cam.rotation_euler = rotation.to_euler()
-    right, up = rotation @ Vector((1, 0, 0)), rotation @ Vector((0, 1, 0))
-    bpy.context.view_layer.update()
-    points = [
-        half.matrix_world @ Vector((x + dx, y + dy, z))
-        for half, x, y in positions
-        for dx in [-0.55, 0.55]
-        for dy in [-0.55, 0.55]
-        for z in [0, 0.7]
-    ]
-    xs = [v.dot(right) for v in points]
-    ys = [v.dot(up) for v in points]
-    camera.ortho_scale = (max(xs) - min(xs)) / 0.715
-    center = right * ((max(xs) + min(xs)) / 2 - 0.12 * camera.ortho_scale)
-    center += up * ((max(ys) + min(ys)) / 2)
-    cam.location = center + direction * 28
-    SCENE.render.resolution_x, SCENE.render.resolution_y = 1760, 680
+    camera.ortho_scale = 7.38
+    SCENE.render.resolution_x, SCENE.render.resolution_y = WIDTH, HEIGHT
     SCENE.render.resolution_percentage = 100
+    SCENE.render.film_transparent = True
+    SCENE.render.image_settings.color_mode = "RGBA"
     SCENE.render.image_settings.file_format = "PNG"
-    SCENE.render.filepath = str(out)
+    SCENE.render.filepath = str(folder / f"{side}.png")
+    bpy.context.view_layer.update()
+
+    def project(key, offset):
+        p = world_to_camera_view(SCENE, cam, key.matrix_world @ Vector(offset))
+        return (WIDTH * p.x, HEIGHT * (1 - p.y))
+
+    anchors = {}
+    for index, key in positions.items():
+        x, y = project(key, (0, 0, 0.403))
+        u, v = project(key, (0.4, 0, 0.403))
+        anchors[index] = (x, y, math.degrees(math.atan2(v - y, u - x)))
     bpy.ops.render.render(write_still=True)
-    return roles
-
-
-def caption(x, y, words, size, color, weight=500, align="start", mono=False):
-    family = "Menlo, monospace" if mono else "Arial, sans-serif"
-    return f'<text x="{x}" y="{y}" text-anchor="{align}" font-family="{family}" font-size="{size}" font-weight="{weight}" fill="{color}">{escape(words)}</text>'
-
-
-def compose(temp, photo, roles, mobile):
-    width, height = (800, 828) if mobile else (1440, 741)
-    top = 494 if mobile else 556
-    svg = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}">'
-    ]
-    if mobile:
-        # Crop the negative space used by the desktop title, retaining both hands.
-        image_args = ["-crop", "1390x680+386+0", "+repage", "-resize", "800x"]
-        px, py = 0, 81
-        svg += [
-            caption(26, 57, "36 keys", 48, PAPER, 750),
-            caption(775, 51, "QMK  ·  PIANTOR / CORNE", 20, PAPER, 600, "end", True),
-        ]
-    else:
-        image_args = ["-resize", "1440x556!"]
-        px, py = 0, 0
-        svg += [
-            caption(44, 71, "QMK", 22, "#b3d2c5", 600, mono=True),
-            caption(35, 232, "36", 155, PAPER, 750),
-            caption(45, 284, "keys", 60, PAPER, 550),
-            caption(47, 374, "Piantor", 36, PAPER, 600),
-            caption(47, 414, "Corne", 36, PAPER, 600),
-        ]
-    svg.append(
-        f'<rect x="0" y="{top}" width="{width}" height="{height - top}" fill="{PAPER}"/>'
-    )
-    if mobile:
-        svg += [
-            caption(25, top + 54, "MacBook", 39, INK, 700),
-            caption(774, top + 50, "Karabiner-Elements", 25, INK, 500, "end"),
-        ]
-        x, cap_y = 109, top + 106
-        widths = [117, 117, 152, 117, 117]
-        printed_keys = ["L ⌥", "L ⌘", "Space bar", "R ⌘", "R ⌥"]
-        svg += [
-            caption(24, cap_y + 104, "Tap", 22, INK),
-            caption(24, cap_y + 158, "Hold", 22, INK),
-        ]
-    else:
-        svg += [
-            caption(45, top + 78, "MacBook", 44, INK, 700),
-            caption(47, top + 115, "Karabiner-Elements", 22, INK),
-        ]
-        x, cap_y = 382, top + 25
-        widths = [171, 171, 269, 171, 171]
-        printed_keys = [
-            "Left Option",
-            "Left Cmd",
-            "Space bar",
-            "Right Cmd",
-            "Right Option",
-        ]
-        svg += [
-            caption(288, cap_y + 79, "Tap", 18, INK),
-            caption(288, cap_y + 124, "Hold", 18, INK),
-        ]
-    for (tap, hold), printed, cap_w in zip(roles, printed_keys, widths):
-        middle = x + cap_w / 2
-        key_h = 57 if mobile else 43
-        svg += [
-            f'<rect x="{x}" y="{cap_y}" width="{cap_w}" height="{key_h}" rx="10" fill="{ACCENTS[hold]}"/>',
-            caption(
-                middle,
-                cap_y + (36 if mobile else 28),
-                printed,
-                25 if mobile else 21,
-                INK,
-                650,
-                "middle",
-            ),
-            caption(
-                middle,
-                cap_y + (104 if mobile else 79),
-                tap,
-                23 if mobile else 24,
-                INK,
-                700,
-                "middle",
-            ),
-            caption(
-                middle, cap_y + (158 if mobile else 124), hold, 22, INK, 500, "middle"
-            ),
-        ]
-        x += cap_w + (9 if mobile else 14)
-    overlay = temp / "overlay.svg"
-    overlay.write_text("\n".join(svg + ["</svg>"]))
-    subprocess.run(
-        ["rsvg-convert", str(overlay), "-o", str(temp / "type.png")], check=True
-    )
-    subprocess.run(
-        [
-            "magick",
-            "-size",
-            f"{width}x{height}",
-            "xc:#253d40",
-            "(",
-            str(photo),
-            *image_args,
-            ")",
-            "-geometry",
-            f"+{px}+{py}",
-            "-composite",
-            str(temp / "type.png"),
-            "-geometry",
-            "+0+0",
-            "-composite",
-            "-strip",
-            "-quality",
-            "92",
-            str(HERE / ("layout-mobile.webp" if mobile else "layout.webp")),
-        ],
-        check=True,
-    )
+    return anchors
 
 
 if __name__ == "__main__":
     if not bpy.app.background:
-        raise SystemExit("Run the cover renderer in a new background Blender process.")
+        raise SystemExit("Use a new background Blender process")
+    parts, outline = read_pcb()
     with tempfile.TemporaryDirectory() as folder:
-        temp = Path(folder)
-        photo = temp / "split.png"
-        roles = render_scene(photo)
-        for mobile in (False, True):
-            compose(temp, photo, roles, mobile)
+        folder = Path(folder)
+        anchors = {s: render_half(folder, s, parts, outline) for s in ("left", "right")}
+        animate(folder, anchors)

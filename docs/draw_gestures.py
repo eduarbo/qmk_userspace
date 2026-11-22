@@ -25,26 +25,26 @@ SPLIT = [
     (1.70, "Hold the Tab thumb for Symbols.", "", {"Tab": "Symbols"}, {}),
     (
         1.80,
-        "Keep Tab down. Hold A for Shift.",
+        "Keep Tab down. Hold the Space thumb for Shift.",
         "",
-        {"Tab": "Symbols", "A": "Shift"},
+        {"Tab": "Symbols", "Space": "Shift"},
         {},
     ),
     (
         1.55,
         "Tap U for the opening brace.",
         "{",
-        {"Tab": "Symbols", "A": "Shift"},
+        {"Tab": "Symbols", "Space": "Shift"},
         {"U": "{"},
     ),
     (
         1.55,
         "Keep both held and tap I to close.",
         "{}",
-        {"Tab": "Symbols", "A": "Shift"},
+        {"Tab": "Symbols", "Space": "Shift"},
         {"I": "}"},
     ),
-    (2.05, "Release A and Tab. Back to letters.", "{}", {}, {}),
+    (2.05, "Release both thumbs. Back to letters.", "{}", {}, {}),
 ]
 LAPTOP = [
     (1.45, "Hold right Command for Symbols.", "", {"right command": "Symbols"}, {}),
@@ -66,7 +66,7 @@ LAPTOP = [
     ),
     (
         1.85,
-        "This time, hold semicolon for Shift.",
+        "Hold semicolon for the extra Shift.",
         "ñ",
         {"right command": "Symbols", ";": "Shift"},
         {},
@@ -199,7 +199,7 @@ def phone_frame(title, platform, timeline, step, source, is_laptop):
     if is_laptop:
         keys = ["right command", ";", "B" if step >= 4 else "N"]
     else:
-        keys = ["Tab", "A", "I" if step >= 4 else "U"]
+        keys = ["Tab", "Space", "I" if step >= 4 else "U"]
     body = [
         '<svg xmlns="http://www.w3.org/2000/svg" width="470" height="464" viewBox="0 0 470 464">',
         rect(0, 0, 470, 464, 0, INK),
@@ -301,7 +301,7 @@ def main():
     draw_movie(
         target / "macbook-symbols.gif",
         args.macbook_svg,
-        "Type ñ and _",
+        "MacBook rollover",
         "KARABINER-ELEMENTS  /  MACBOOK",
         LAPTOP,
         is_laptop=True,

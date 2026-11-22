@@ -23,7 +23,7 @@ NOTES = {
     ),
     "symbols": (
         "Digits, punctuation and arrows",
-        "Hold Tab for Symbols. Either mint accent key adds Shift while held.",
+        "Hold Tab for Symbols. Hold the Space thumb to add Shift.",
     ),
     "super": (
         "Browser, windows and apps",
@@ -70,8 +70,6 @@ def key_color(slug, index, key):
         return INK, "#ffffff"
     if key.get("type") == "trans" or not key["t"]:
         return QUIET, MUTED
-    if slug == "symbols" and key.get("h") == "Shift":
-        return MINT, INK
     if index >= 30:
         if key.get("h") in {"Symbols", "Super", "Hyper", "F-Keys", "Adjust"}:
             return LILAC, INK

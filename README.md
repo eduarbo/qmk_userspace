@@ -1,14 +1,16 @@
 # Eduardo's QMK userspace
 
-Firmware for my Piantor and Corne, two 36-key splits that share one keymap. The MacBook
+My Piantor is my daily driver. My 36-key Corne runs the same QMK keymap. The MacBook
 keyboard mirrors it with
 [Karabiner-Elements](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner).
 
 **[Find a key or shortcut](users/eduarbo/README.md#find-a-key)** · [Split and MacBook thumbs](users/eduarbo/README.md#base-and-thumbs) · [All layer maps](users/eduarbo/README.md#layers) · [Build and flash](users/eduarbo/README.md#build-and-flash)
 
 <picture>
-  <source media="(max-width: 600px)" srcset="docs/cover/layout-mobile.webp">
-  <img src="docs/cover/layout.webp" alt="The 36-key split above its MacBook equivalents. The six split thumbs correspond to left Option, left Command, the space bar, right Command and right Option. Both inner Return thumbs share the space bar.">
+  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="docs/cover/layout-mobile.webp">
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/cover/layout.webp">
+  <source media="(max-width: 600px)" srcset="docs/cover/layout-mobile.gif">
+  <img src="docs/cover/layout.gif" alt="My 36-key Piantor in use. The thumb legends show tap and hold. The loop lights up the keys for Spotlight, a capital A, cursor down, browser back and mute.">
 </picture>
 
 | Target | Hardware |
