@@ -1,127 +1,176 @@
 # Eduardo's 36-key layout
 
-One layout for the [Piantor](https://github.com/beekeeb/piantor) and the 3×5 Corne,
-mirrored on the MacBook keyboard by
-[Karabiner-Elements](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner).
-Both boards build from this userspace with the same keymap.
+I use the same letter positions on my [Piantor](https://github.com/beekeeb/piantor), my 3×5 Corne and my MacBook. I keep the arrows on `H J K L` so I can move the cursor with my right hand, and put my browser shortcuts on the left so I can keep the other hand on the mouse. The splits run QMK. On the laptop, Karabiner-Elements gives the keys around the space bar the jobs of the six split thumbs.
 
-- **Thumbs do double duty:** tap for a key, hold for a modifier or a layer.
-- **Always boots into macOS:** Winux is a per-session switch, and reconnecting restores macOS.
-- **Same as the MacBook:** Karabiner shares these layers and the 250 ms tap window, and
-  `npm test` in `dotfiles/macos/karabiner` checks the base, Symbols and F-Keys layers
-  against [`wrappers.h`](wrappers.h).
+[Find a key](#find-a-key) · [MacBook rollover and Shift](#macbook-rollover-and-shift) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
+
+![The split in its macOS base. Left thumbs tap Esc, Space and Return. Right thumbs tap Return, Tab and F16.](../../docs/layers/macos.svg)
+
+## Find a key
+
+For **Symbols**, hold the **Tab thumb** on the split or **right ⌘** on the MacBook. For **Super**, hold the **Esc thumb** or **left ⌥**. Letters in recipes are their usual QWERTY positions. The character examples use the U.S. input layout.
+
+| I want to… | What to press |
+| --- | --- |
+| Type `[` or `]` | Hold Symbols and tap `U` or `I`. For `{` or `}`, also hold `A` as Shift. |
+| Type `-` or `_` | Hold Symbols and tap `B`. For `_`, also hold `;` as Shift. |
+| Type `á` or `ñ` on macOS | Hold Symbols, tap `A` for acute or `;` for tilde, release Symbols, then type the letter. |
+| Type a number | Hold Symbols. `X C V` give **1 2 3**, `S D F` give **4 5 6**, `W E R` give **7 8 9**, and `T` gives **0**. |
+| Move the cursor | Hold Symbols. `H J K L` give **← ↓ ↑ →**. `Q` / `P` give **Page Up / Page Down**. Add either Symbols Shift for **Home / End**. |
+| Send ⌘Return | Hold Symbols. Tap either **Return thumb** on the split or the **physical space bar** on the MacBook. |
+| Send ⌘Space for Spotlight | On the split, hold either **Return thumb** and tap the **Space thumb**. On the MacBook, hold the **physical space bar** and tap **left ⌘**. |
+| Go back / forward in the browser | Hold Super and tap `D` / `F`. For previous / next tab, use `S` / `G`. |
+| Press F5 or mute the audio | On the split, hold **Esc**, then hold the **Space thumb**. On the MacBook, hold **left ⌥**, then hold the **space bar**. Tap `D` for **F5** or `K` for **mute**. |
+| Open Finder with my app launcher | Hold Super and Symbols together, then tap `F`. [All launcher bindings](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher) |
+
+You can also [look up every punctuation pair on Symbols](#symbols--hold-tab).
+
+### MacBook rollover and Shift
+
+On my MacBook's built-in keyboard, some combinations of physical keys held together don't all register. With full **N-key rollover (NKRO)**, every held key registers even as I press another. Karabiner can only remap the events the keyboard actually sends. I ran into this trying to hold my usual Shift and Symbols while typing a third key.
+
+I gave **both pinkies a Shift inside Symbols**. I can use the opposite hand for Shift and choose a different physical chord for the same character. Both positions send **left Shift** when held. A quick tap still gives me the dead key I need to write Spanish. I kept those positions in QMK, too.
+
+![Two ways to use the semicolon position. Tap it on Symbols, release the layer and type N for ñ. Hold it on Symbols and tap B for underscore.](../../docs/symbols-tap-hold.svg)
+
+| While holding Symbols | Tap the key | Hold the key and tap another |
+| --- | --- | --- |
+| `A` · left pinky | Acute dead key · release Symbols, then `E` gives **é** | Tap `U` for **{** or `I` for **}** |
+| `;` · right pinky | Tilde dead key · release Symbols, then `N` gives **ñ** | Tap `B` for **_** or `W` for **&** |
+
+For a literal ASCII tilde (`~`), hold Symbols and `A`, then tap `N`. On the MacBook **base**, I also have dedicated Shifts at **Caps Lock** (left Shift) and the **quote key** (right Shift). [MacBook keycap map](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner)
 
 ## Layers
 
-Highlighted keys are held to reach the layer; dimmed keys fall through to the base layer.
+| Hold to reach | Piantor / Corne | MacBook · printed keys |
+| --- | --- | --- |
+| Symbols | Tab thumb | Right ⌘ |
+| Super · ⌘⌥⌃ | Esc thumb | Left ⌥ |
+| Hyper · ⌘⌥⌃⇧ | Esc + Tab thumbs, either order | Left ⌥ + right ⌘, either order |
+| F-Keys | Esc first, then Space or F16 thumb | Left ⌥ first, then space bar or right ⌥ |
+| Adjust | Esc + either Return thumb | QMK only |
+| Gamepad | On Adjust, tap `J` to toggle | QMK only |
 
-### macOS base
+### Base and thumbs
 
-![macOS base layer](../../docs/layers/macos.svg)
+| Split key | MacBook keycap | Tap | Hold · macOS |
+| --- | --- | --- | --- |
+| Left outer | Left ⌥ | Esc | Super |
+| Left middle | Left ⌘ | Space | Shift |
+| Either inner | Space bar | Return | Right ⌘ |
+| Right middle | Right ⌘ | Tab | Symbols |
+| Right outer | Right ⌥ | F16 | Right Control |
 
-### Winux base
+Both configurations use a 250 ms tap window. In QMK, pressing a second key also selects the hold action. Both inner thumbs are Return so I can hit Enter with either hand. Keeping Return off the Shift and Symbols thumbs saves me accidental newlines. On the MacBook the printed `/` takes the split's Backspace position.
 
-Switch to it with **macOS ⇄ Winux** on Adjust.
+<details>
+<summary>See the printed keys on the MacBook</summary>
 
-![Winux base layer](../../docs/layers/winux.svg)
+![MacBook keycaps with their tap and hold actions. The space bar taps Return and holds Command.](https://raw.githubusercontent.com/eduarbo/dotfiles/main/macos/karabiner/docs/macbook.svg)
+
+The top legend is the printed keycap. Read the middle for its tap and the bottom for its hold.
+
+</details>
+
+<details>
+<summary>Winux base · Windows and Linux on QMK</summary>
+
+On Adjust, tap `K` for Winux. The Return thumbs now hold **right Ctrl**, and the F16 thumb holds **right GUI** (Windows/Super). Symbols + Return sends **Ctrl+Return**. The accent taps send **Right Alt+E** and **Right Alt+N**. Your OS input layout determines what those produce. Powering the keyboard back on restores the macOS base.
+
+![Winux base with Control on the two Return thumbs and GUI on the F16 thumb.](../../docs/layers/winux.svg)
+
+</details>
 
 ### Symbols · hold Tab
 
-![Symbols layer](../../docs/layers/symbols.svg)
+The large legend is the tap. Above each number or punctuation mark is the character you get with Shift on a U.S. layout. The two accent keys show **Shift** underneath. Dimmed keys inherit their base action.
 
-On Winux the accents use `Right Alt` and `⌘ Return` becomes `Ctrl+Return`.
+![Symbols layer with a number pad on the left, brackets and arrows on the right, and a Shift on each home-row pinky.](../../docs/layers/symbols.svg)
+
+<details>
+<summary>Look up punctuation by character</summary>
+
+Hold Symbols throughout. For the last column, also hold the opposite pinky's `A` or `;`.
+
+| Physical position | Tap | With Shift |
+| --- | --- | --- |
+| `X C V` | `1 2 3` | `! @ #` |
+| `S D F` | `4 5 6` | `$ % ^` |
+| `W E R T` | `7 8 9 0` | `& * ( )` |
+| `G` / `B` | `=` / `-` | `+` / `_` |
+| `U` / `I` | `[` / `]` | `{` / `}` |
+| `Y` / `O` | <code>&#92;</code> / `/` | <code>&#124;</code> / `?` |
+| `N` / `M` | <code>&#96;</code> / `'` | `~` / `"` |
+| `,` / `.` | `,` / `.` | `<` / `>` |
+
+For `:`, use ordinary Shift with `;` on the **base**.
+
+</details>
+
+**Thumb taps on Symbols.** Tap Esc for **⇧Esc**, Space for **⇧Space**, or Return for **⌘Return** on macOS. Use the [base thumb table](#base-and-thumbs) to find their physical MacBook keys.
+
+**Caps Word.** Symbols + `Z` toggles QMK Caps Word. Try `ABC-123` followed by a space. Digits, hyphen, apostrophe, semicolon, grave, Backspace and Delete keep it going unshifted. Space ends the word. Karabiner uses the same position for **Caps Lock**. Tap it again to switch it off.
 
 ### Super · hold Esc
 
-Super is `⌘⌥⌃`. The small legend shows the shortcut each key sends.
+![Super shortcuts grouped by position, with developer tools and browser navigation on the left, and window and app shortcuts on the right.](../../docs/layers/super.svg)
 
-![Super layer](../../docs/layers/super.svg)
+| What I use it for | Super + key |
+| --- | --- |
+| Browser devtools · inspector · pause JS | `E` · `R` · `T` |
+| Full screenshot · area screenshot · capture toolbar | `Q` · `A` · `Z` with Karabiner |
+| Left half · next display · maximize · right half · window grid | `H` · `J` · `K` · `L` · `;` with Hammerspoon |
 
-- `E`, `R`, `T`, `S`, `D`, `F` and `G` come from the firmware and send Control shortcuts on
-  Winux. The other keys need macOS with my
-  [dotfiles](https://github.com/eduarbo/dotfiles) installed.
-- **Hyper** (`⌘⌥⌃⇧`): hold Super and Symbols in either order. Every key tapped while both
-  are held gets Hyper; releasing one leaves only the other. Hammerspoon uses it to
-  [launch apps](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon#app-launcher).
+QMK emits the seven browser shortcuts (`E R T S D F G`) in firmware. On Winux, back/forward use **Alt+←/→**. Screenshot and app-switching keys (`Q A Z X C V B`) use a device-independent Karabiner rule, so the splits get them on my Mac too. Right-hand window and utility bindings depend on my Hammerspoon, Raycast or Gemini setup. The thumb legends on the Super diagram describe QMK's macOS base. A **one-shot** modifier applies to the next key. [Mac bindings](https://github.com/eduarbo/dotfiles/tree/main/macos/hammerspoon)
+
+**Hyper** adds Shift to Super. Keep Super and Symbols held while tapping one or more keys. Release either thumb to go back to the one you are still holding.
 
 ### F-Keys · hold Super, then Space or the right Fn thumb
 
-![F-Keys layer](../../docs/layers/fkeys.svg)
+The left hand uses the same three-by-three grid as the Symbols numbers. `X C V` are F1–F3, `S D F` are F4–F6 and `W E R` are F7–F9. `Z A Q` are F10–F12. On the right, `J K L` lower, mute and raise the volume. `M` and comma lower and raise display brightness.
 
-Key for key the same as the Karabiner FN layer.
+![Function and media map, with F1 through F12 on the left and playback, volume and display keys on the right.](../../docs/layers/fkeys.svg)
 
-### Adjust · hold Super and a Return thumb
+<details>
+<summary>Adjust and Gamepad · QMK only</summary>
 
-![Adjust layer](../../docs/layers/adjust.svg)
+Hold Super and a Return thumb for Adjust. Tap `J` for Gamepad or `K` to switch bases. `W` toggles debugging, `E` reboots, `R` **clears EEPROM settings** and `T` enters the bootloader. Both halves store their handedness in EEPROM. If you clear it, restore the affected half with the matching left/right flash target.
 
-- **Bootloader** prepares the half for flashing, so you don't need the BOOTSEL button.
-- **Clear settings** erases the EEPROM. On the Piantor that includes which side the half
-  is, so reflash it with its `-left` or `-right` target afterwards.
+![Adjust layer with firmware controls on the left and Gamepad and base toggles on J and K.](../../docs/layers/adjust.svg)
 
-### Gamepad
+In Gamepad, `E S D F` become **↑ ← ↓ →**. The left thumbs become plain **Alt, Space and Return**. To leave, **hold the left Alt thumb, hold the right Return thumb, tap J**, then release both.
 
-![Gamepad layer](../../docs/layers/gamepad.svg)
+![Gamepad with arrows on E, S, D and F, and plain keys on the left thumbs.](../../docs/layers/gamepad.svg)
 
-To leave, hold Alt and the right Return thumb to reach Adjust, then tap **Gamepad**.
-
-### Caps Word
-
-`Symbols+Z` turns on QMK Caps Word. Letters are capitalized, while digits, `-`, `'`, `;`, `` ` ``,
-Backspace and Delete continue it unshifted, as with Caps Lock. It is the only deliberate
-difference from Karabiner, which sends Caps Lock.
-
-## Why it looks like this
-
-- Super and Shift sit on the left, so shortcuts work one-handed while the right hand is on
-  the mouse.
-- Symbols sits on the right, so the arrows on `H`, `J`, `K` and `L` work with one hand.
-- Return and Command sit on both sides, like the MacBook space bar, so they pair with a
-  modifier on either hand.
-- Return stays off the Shift and Symbols thumbs to avoid accidental presses while typing.
+</details>
 
 ## Build and flash
 
-Without a global `qmk` install, run the CLI through `uv` with the QMK toolchains on the
-`PATH`, from the root of this repository:
+From the root of this userspace, with [QMK and its toolchains installed](https://docs.qmk.fm/newbs_getting_started), run `qmk userspace-compile` to build both targets in [qmk.json](../../qmk.json). The AVR Corne keeps its OLED and disables RGB Matrix to fit in flash. If you use the pinned CLI and local toolchains from my setup:
 
 ```sh
-export PATH="$HOME/dev/eduarbo/qmk_toolchains/bin:$PATH" QMK_HOME=~/dev/eduarbo/qmk_firmware
-alias qmk='uvx --from qmk==1.2.0 qmk'
+export PATH="$HOME/dev/eduarbo/qmk_toolchains/bin:$PATH"
+export QMK_HOME="$HOME/dev/eduarbo/qmk_firmware"
+uvx --from qmk==1.2.0 qmk userspace-compile
 ```
 
-| Task | Command |
-| --- | --- |
-| Build both boards | `qmk userspace-compile` |
-| Flash a Piantor half | `qmk flash -kb beekeeb/piantor -km eduarbo -bl uf2-split-left` (or `-right`) |
-| Flash a Corne half | `qmk flash -kb crkbd/rev1 -km eduarbo -bl avrdude-split-left` (or `-right`) |
+Connect the half you want to flash and use its **left** or **right** command. When the CLI is waiting, use **Adjust + T** on a board already running this layout. On a Pico you can also hold **BOOTSEL** while plugging it in. [Piantor commands](../../keyboards/beekeeb/piantor/keymaps/eduarbo/README.md) · [Corne commands](../../keyboards/crkbd/keymaps/eduarbo/README.md)
 
-When the CLI waits for the board, connect that half and choose **Bootloader** on Adjust,
-or hold BOOTSEL while plugging it in. Each half stores its side in EEPROM (`EE_HANDS`), so
-flash it with the matching `-left` or `-right` target.
+<details>
+<summary>Check the keyboard after flashing</summary>
 
-The AVR-based Corne keeps its OLED and disables RGB Matrix to fit; it uses about 96% of
-its flash, so compile both boards before accepting a change.
+1. Try the two tap/hold accent gestures above. Release Shift and Symbols in both orders, then type a lowercase letter.
+2. Try the Symbols thumb taps and ⌘Space from the base. Verify that no modifier stays active.
+3. Enter Hyper in both orders and tap several keys. Release one thumb and check that the remaining thumb keeps its own action.
+4. Hold Super, then tap Space for F16. Repeat with a held Space for F-Keys, try both release orders, and check `J K L` for volume down, mute and volume up.
+5. Toggle Caps Word and type `ABC-DEF` and a space. Toggle Winux on Adjust and reconnect to check that macOS returns.
 
-## Update the diagrams
+</details>
 
-```sh
-python3 docs/draw_layout.py
-```
+### Sources and diagrams
 
-The script reads `wrappers.h` and redraws `docs/layers/*.svg` with a pinned
-[keymap-drawer](https://github.com/caksoylar/keymap-drawer). Labels and the Super layer,
-which lives in `process_records.c` and Karabiner rather than `wrappers.h`, are defined in
-the script.
+The split positions come from [wrappers.h](wrappers.h), chord handling from [process_records.c](process_records.c), and Caps Word from [eduarbo.c](eduarbo.c). Run `python3 docs/draw_layout.py` at the repository root to redraw the seven layer maps with pinned keymap-drawer. The script also supplies the U.S. Shift legends and Super's host shortcuts.
 
-## Test after flashing
+The [Karabiner guide](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner) covers the printed MacBook keys, profiles and app-specific rules. Its [parity tests](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/config/qmkParity.test.ts) compare the thirty finger positions on Base, Symbols and F-Keys with this userspace.
 
-1. Tap and hold `´` and `˜` on Symbols: the tap types the accent, the hold shifts the
-   next Symbols key.
-2. Tap and hold each thumb on Symbols and on both bases, releasing in both orders; no
-   modifier may stay latched.
-3. Hold a Return thumb and tap Space: it opens Spotlight on macOS.
-4. Hold Hyper in both press orders and tap several keys; each must get Hyper.
-5. Hold Super, then tap and hold Space; release in both orders.
-6. On F-Keys, `J`, `K` and `L` send Volume Down, Mute and Volume Up.
-7. Turn on Caps Word and type `ABC-DEF`; the hyphen must stay a hyphen.
-8. Switch to Winux on Adjust, then reconnect the keyboard: it must be back on macOS.
+Coming from [Flan](https://flankbd.com/)? Flan36 shares the Piantor's key positions and has its own [ZMK keymap and firmware guide](https://github.com/eduarbo/flan/blob/main/docs/firmware.md).

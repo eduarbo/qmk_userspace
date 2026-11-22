@@ -6,6 +6,8 @@ keymap-drawer and reads the Piantor geometry from $QMK_HOME (default
 ~/dev/eduarbo/qmk_firmware), falling back to the QMK API when that is missing.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -34,7 +36,7 @@ LABELS = {
     "KC_LALT": "Alt", "KC_LSFT": "Shift", "KC_RSFT": "Shift",
     "KC_PSCR": "PrtSc", "KC_SCRL": "ScrLk", "KC_PAUS": "Pause",
     "KC_VOLU": "Vol+", "KC_VOLD": "Vol−", "KC_MUTE": "Mute",
-    "KC_MRWD": "Prev", "KC_MPLY": "Play", "KC_MFFD": "Next",
+    "KC_MRWD": "Rewind", "KC_MPLY": "Play\nPause", "KC_MFFD": "Fast fwd",
     "KC_BRID": "Bright −", "KC_BRIU": "Bright +", "KC_MCTL": "Mission\nControl",
     "ACUTE_LSFT": {"t": "´", "h": "Shift"}, "TILDE_LSFT": {"t": "˜", "h": "Shift"},
     "CW_TOGG": "Caps\nWord",
@@ -44,6 +46,13 @@ LABELS = {
     "F16_RCTL": {"t": "F16", "h": "Ctrl"}, "F16_RGUI": {"t": "F16", "h": "Win"},
     "DB_TOGG": "Debug", "QK_RBT": "Reboot", "EE_CLR": "Clear\nsettings", "QK_BOOT": "Boot\nloader",
     "TG_BASE": "macOS\n⇄ Winux", "TG_GAME": "Gamepad", "XXXXXXX": "",
+}
+
+# U.S. input-source legends, shown above the unshifted output on Symbols.
+US_SHIFT = {
+    "1": "!", "2": "@", "3": "#", "4": "$", "5": "%", "6": "^",
+    "7": "&", "8": "*", "9": "(", "0": ")", "-": "_", "=": "+",
+    "[": "{", "]": "}", "\\": "|", "/": "?", "'": '"', "`": "~", ",": "<", ".": ">",
 }
 
 # Super is a chord, not a QMK layer: QMK emits E/R/T/S/D/F/G (process_records.c),
@@ -143,6 +152,14 @@ def layer_keys(blocks, prefix, thumbs, overrides, base_tokens):
     return tokens, keys
 
 
+def symbols_legends(keys):
+    for index, key in enumerate(keys):
+        legend = {"t": key} if isinstance(key, str) else key
+        if legend.get("t") in US_SHIFT:
+            keys[index] = {**legend, "s": US_SHIFT[legend["t"]]}
+    return keys
+
+
 def main() -> None:
     blocks = parse_wrappers(WRAPPERS.read_text())
     base_tokens = [t for row in ROWS for t in block(blocks, f"QWERTY_{row}")]
@@ -151,6 +168,8 @@ def main() -> None:
     layers = {}
     for title, _, prefix, thumbs, overrides in LAYERS:
         layers[title] = SUPER if prefix is None else layer_keys(blocks, prefix, thumbs, overrides, base_tokens)[1]
+
+    layers["Symbols"] = symbols_legends(layers["Symbols"])
 
     layout = (
         {"qmk_info_json": str(INFO_JSON), "layout_name": "LAYOUT_split_3x5_3"}

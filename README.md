@@ -4,9 +4,9 @@ Firmware for my Piantor and Corne, two 36-key splits that share one keymap. The 
 keyboard mirrors it with
 [Karabiner-Elements](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner).
 
-![macOS base layer](docs/layers/macos.svg)
+**[Find a key or shortcut](users/eduarbo/README.md#find-a-key)** · [Why Symbols has two Shifts](users/eduarbo/README.md#macbook-rollover-and-shift) · [All layer maps](users/eduarbo/README.md#layers) · [Build and flash](users/eduarbo/README.md#build-and-flash)
 
-**[Layers, build and flashing guide →](users/eduarbo/README.md)**
+![QWERTY split with tap and hold actions on the six thumbs](docs/layers/macos.svg)
 
 | Target | Hardware |
 | --- | --- |

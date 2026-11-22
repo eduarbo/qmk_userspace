@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="492" height="228" viewBox="0 0 492 228" role="img" aria-labelledby="title description">
+  <title id="title">One key on Symbols, two gestures</title>
+  <desc id="description">Hold Symbols. Tap semicolon, release Symbols and type N to get ñ. Or hold semicolon as Shift and tap B for underscore. Release both held keys.</desc>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #182923 }
+    .panel { fill: #f4f7f3; stroke: #adbbb3 }
+    .rule { stroke: #bdcbc1 }
+    .context { font-size: 18px; font-weight: 650 }
+    .label { font-size: 17px; font-weight: 600 }
+    .hint { font-size: 16px; fill: #48574f }
+    .key { fill: #fff; stroke: #86998e; stroke-width: 1.5 }
+    .hold { fill: #d6eddf; stroke: #35805a; stroke-width: 2 }
+    .legend, .result { text-anchor: middle; font-weight: 650 }
+    .legend { font-size: 25px }
+    .result { fill: #12633b; font-size: 39px }
+    .path { fill: none; stroke: #718479; stroke-width: 1.6 }
+    @media (prefers-color-scheme: dark) {
+      text { fill: #edf7ef } .panel { fill: #1a2622; stroke: #506159 }
+      .rule, .path { stroke: #71867a } .hint { fill: #c3d2c9 }
+      .key { fill: #2c3933; stroke: #8a9e91 }
+      .hold { fill: #244b3a; stroke: #7cd4a3 } .result { fill: #91e4af }
+    }
+  </style>
+  <rect class="panel" x="1" y="1" width="490" height="226" rx="14"/>
+  <text x="25" y="36" class="context">Start with Symbols held</text>
+  <line class="rule" x1="25" x2="468" y1="52" y2="52"/>
+  <text x="25" y="91" class="label">Tap</text>
+  <rect class="key" x="77" y="65" width="47" height="42" rx="7"/>
+  <text x="100" y="94" class="legend">;</text>
+  <path class="path" d="M133 86h16m-5-5 5 5-5 5"/>
+  <text x="159" y="92" class="hint">Release Symbols, type</text>
+  <rect class="key" x="339" y="65" width="47" height="42" rx="7"/>
+  <text x="362" y="94" class="legend">N</text>
+  <path class="path" d="M394 86h20m-5-5 5 5-5 5"/>
+  <text x="447" y="98" class="result">ñ</text>
+  <line class="rule" x1="25" x2="468" y1="121" y2="121"/>
+  <text x="25" y="161" class="label">Hold</text>
+  <rect class="hold" x="77" y="135" width="47" height="42" rx="7"/>
+  <text x="100" y="164" class="legend">;</text>
+  <path class="path" d="M133 156h16m-5-5 5 5-5 5"/>
+  <text x="159" y="162" class="hint">Keep both held, tap</text>
+  <rect class="key" x="339" y="135" width="47" height="42" rx="7"/>
+  <text x="362" y="164" class="legend">B</text>
+  <path class="path" d="M394 156h20m-5-5 5 5-5 5"/>
+  <text x="447" y="164" class="result">_</text>
+  <text x="77" y="205" class="hint">Release both keys to return to normal typing.</text>
+</svg>
