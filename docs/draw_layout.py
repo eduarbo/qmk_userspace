@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Draw the layer diagrams in docs/layers from users/eduarbo/wrappers.h.
 
-Run from anywhere: `python3 docs/draw_layout.py`. It needs `uvx` to run a pinned
-keymap-drawer and reads the Piantor geometry from $QMK_HOME (default
-~/dev/eduarbo/qmk_firmware), falling back to the QMK API when that is missing.
+Run with Python 3 from anywhere. Geometry comes from the Piantor definition in
+$QMK_HOME when available, otherwise from QMK's public keyboard metadata.
 """
 
 from __future__ import annotations
@@ -11,12 +10,12 @@ from __future__ import annotations
 import json
 import os
 import re
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
+from urllib.request import urlopen
 
-KEYMAP_DRAWER = "keymap-drawer==0.23.0"
+from layer_art import draw_map, mobile_map
+
 ROOT = Path(__file__).resolve().parent.parent
 WRAPPERS = ROOT / "users/eduarbo/wrappers.h"
 OUTPUT = ROOT / "docs/layers"
@@ -171,38 +170,22 @@ def main() -> None:
 
     layers["Symbols"] = symbols_legends(layers["Symbols"])
 
-    layout = (
-        {"qmk_info_json": str(INFO_JSON), "layout_name": "LAYOUT_split_3x5_3"}
-        if INFO_JSON.exists()
-        else {"qmk_keyboard": "beekeeb/piantor", "layout_name": "LAYOUT_split_3x5_3"}
-    )
-    keymap = {
-        "layout": layout,
-        "draw_config": {
-            "dark_mode": "auto",
-            "key_w": 70,
-            "key_h": 60,
-            "shrink_wide_legends": 6,
-            "append_colon_to_layer_header": False,
-            "style_layer_activators": False,
-            "outer_pad_h": 20,
-            # The README headings name each layer, so hide the drawn header.
-            "svg_extra_style": "svg.keymap { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; } text.label { display: none; }",
-        },
-        "layers": layers,
-    }
-
+    if INFO_JSON.exists():
+        keyboard = json.loads(INFO_JSON.read_text())
+    else:
+        with urlopen("https://keyboards.qmk.fm/v1/keyboards/beekeeb/piantor/info.json", timeout=20) as response:
+            keyboard = json.load(response)["keyboards"]["beekeeb/piantor"]
+    positions = keyboard["layouts"]["LAYOUT_split_3x5_3"]["layout"]
+    physical = [label(token) for token in base_tokens[:30]] + ["Esc", "Space", "Return", "Return", "Tab", "F16"]
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as handle:
-        json.dump(keymap, handle, ensure_ascii=False)
-    try:
-        for title, slug, *_ in LAYERS:
-            subprocess.run(
-                ["uvx", "--from", KEYMAP_DRAWER, "keymap", "draw", handle.name, "-s", title, "-o", OUTPUT / f"{slug}.svg"],
-                check=True,
-            )
-    finally:
-        os.unlink(handle.name)
+    (OUTPUT / "mobile").mkdir(exist_ok=True)
+    for title, slug, *_ in LAYERS:
+        keys = layers[title]
+        if len(positions) != len(keys) or len(keys) != 36:
+            raise ValueError(f"{title} needs 36 matching key positions")
+        art = draw_map(title, slug, positions, keys, physical)
+        (OUTPUT / f"{slug}.svg").write_text(art)
+        (OUTPUT / "mobile" / f"{slug}.svg").write_text(mobile_map(art, title, slug))
     print(f"Wrote {len(LAYERS)} diagrams to {OUTPUT.relative_to(ROOT)}/")
 
 

@@ -6,7 +6,10 @@ keyboard mirrors it with
 
 **[Find a key or shortcut](users/eduarbo/README.md#find-a-key)** · [Why Symbols has two Shifts](users/eduarbo/README.md#macbook-rollover-and-shift) · [All layer maps](users/eduarbo/README.md#layers) · [Build and flash](users/eduarbo/README.md#build-and-flash)
 
-![QWERTY split with tap and hold actions on the six thumbs](docs/layers/macos.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="docs/layers/mobile/macos.svg">
+  <img src="docs/layers/macos.svg" alt="QWERTY split with tap and hold actions on the six thumbs">
+</picture>
 
 | Target | Hardware |
 | --- | --- |

@@ -4,7 +4,14 @@ I use the same letter positions on my [Piantor](https://github.com/beekeeb/piant
 
 [Find a key](#find-a-key) · [MacBook rollover and Shift](#macbook-rollover-and-shift) · [Layer maps](#layers) · [Build and flash](#build-and-flash)
 
-![The split in its macOS base. Left thumbs tap Esc, Space and Return. Right thumbs tap Return, Tab and F16.](../../docs/layers/macos.svg)
+<picture>
+  <source media="(max-width: 600px) and (prefers-reduced-motion: reduce)" srcset="../../docs/layers/mobile/symbols.svg">
+  <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/layers/symbols.svg">
+  <source media="(max-width: 600px)" srcset="../../docs/gestures/split-braces-mobile.gif">
+  <img src="../../docs/gestures/split-braces.gif" alt="Type {} on the split. Hold the Tab thumb and A, tap U then I, and release both holds.">
+</picture>
+
+[Open the braces GIF](../../docs/gestures/split-braces.gif) · [Static base map](#base-and-thumbs)
 
 ## Find a key
 
@@ -31,7 +38,13 @@ On my MacBook's built-in keyboard, some combinations of physical keys held toget
 
 I gave **both pinkies a Shift inside Symbols**. I can use the opposite hand for Shift and choose a different physical chord for the same character. Both positions send **left Shift** when held. A quick tap still gives me the dead key I need to write Spanish. I kept those positions in QMK, too.
 
-![Two ways to use the semicolon position. Tap it on Symbols, release the layer and type N for ñ. Hold it on Symbols and tap B for underscore.](../../docs/symbols-tap-hold.svg)
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="../../docs/symbols-tap-hold.svg">
+  <source media="(max-width: 600px)" srcset="../../docs/gestures/macbook-symbols-mobile.gif">
+  <img src="../../docs/gestures/macbook-symbols.gif" alt="On a MacBook, hold right Command. Tap semicolon, release the layer and tap N for ñ. Hold right Command and semicolon, then tap B for underscore.">
+</picture>
+
+[Open the MacBook GIF](../../docs/gestures/macbook-symbols.gif) · [Still tap/hold sequence](../../docs/symbols-tap-hold.svg)
 
 | While holding Symbols | Tap the key | Hold the key and tap another |
 | --- | --- | --- |
@@ -53,6 +66,11 @@ For a literal ASCII tilde (`~`), hold Symbols and `A`, then tap `N`. On the MacB
 
 ### Base and thumbs
 
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/macos.svg">
+  <img src="../../docs/layers/macos.svg" alt="The split in its macOS base. Left thumbs tap Esc, Space and Return. Right thumbs tap Return, Tab and F16.">
+</picture>
+
 | Split key | MacBook keycap | Tap | Hold · macOS |
 | --- | --- | --- | --- |
 | Left outer | Left ⌥ | Esc | Super |
@@ -66,9 +84,12 @@ Both configurations use a 250 ms tap window. In QMK, pressing a second key also 
 <details>
 <summary>See the printed keys on the MacBook</summary>
 
-![MacBook keycaps with their tap and hold actions. The space bar taps Return and holds Command.](https://raw.githubusercontent.com/eduarbo/dotfiles/main/macos/karabiner/docs/macbook.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="https://raw.githubusercontent.com/eduarbo/dotfiles/main/macos/karabiner/docs/macbook-mobile.svg">
+  <img src="https://raw.githubusercontent.com/eduarbo/dotfiles/main/macos/karabiner/docs/macbook.svg" alt="MacBook keycaps, their taps and their holds.">
+</picture>
 
-The top legend is the printed keycap. Read the middle for its tap and the bottom for its hold.
+On the keyboard drawing, the top legend is the printed keycap. Read the middle for its tap and the bottom for its hold.
 
 </details>
 
@@ -77,15 +98,21 @@ The top legend is the printed keycap. Read the middle for its tap and the bottom
 
 On Adjust, tap `K` for Winux. The Return thumbs now hold **right Ctrl**, and the F16 thumb holds **right GUI** (Windows/Super). Symbols + Return sends **Ctrl+Return**. The accent taps send **Right Alt+E** and **Right Alt+N**. Your OS input layout determines what those produce. Powering the keyboard back on restores the macOS base.
 
-![Winux base with Control on the two Return thumbs and GUI on the F16 thumb.](../../docs/layers/winux.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/winux.svg">
+  <img src="../../docs/layers/winux.svg" alt="Winux base with Control on the two Return thumbs and GUI on the F16 thumb.">
+</picture>
 
 </details>
 
 ### Symbols · hold Tab
 
-The large legend is the tap. Above each number or punctuation mark is the character you get with Shift on a U.S. layout. The two accent keys show **Shift** underneath. Dimmed keys inherit their base action.
+The small upper-left legend is the physical position. Read the center for the tap and the upper right for its shifted character on a U.S. layout. The two accent keys show **Shift** underneath. Dimmed keys inherit their base action.
 
-![Symbols layer with a number pad on the left, brackets and arrows on the right, and a Shift on each home-row pinky.](../../docs/layers/symbols.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/symbols.svg">
+  <img src="../../docs/layers/symbols.svg" alt="Symbols layer with a number pad on the left, brackets and arrows on the right, and a Shift on each home-row pinky.">
+</picture>
 
 <details>
 <summary>Look up punctuation by character</summary>
@@ -113,7 +140,10 @@ For `:`, use ordinary Shift with `;` on the **base**.
 
 ### Super · hold Esc
 
-![Super shortcuts grouped by position, with developer tools and browser navigation on the left, and window and app shortcuts on the right.](../../docs/layers/super.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/super.svg">
+  <img src="../../docs/layers/super.svg" alt="Super shortcuts grouped by position, with developer tools and browser navigation on the left, and window and app shortcuts on the right.">
+</picture>
 
 | What I use it for | Super + key |
 | --- | --- |
@@ -129,18 +159,27 @@ QMK emits the seven browser shortcuts (`E R T S D F G`) in firmware. On Winux, b
 
 The left hand uses the same three-by-three grid as the Symbols numbers. `X C V` are F1–F3, `S D F` are F4–F6 and `W E R` are F7–F9. `Z A Q` are F10–F12. On the right, `J K L` lower, mute and raise the volume. `M` and comma lower and raise display brightness.
 
-![Function and media map, with F1 through F12 on the left and playback, volume and display keys on the right.](../../docs/layers/fkeys.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/fkeys.svg">
+  <img src="../../docs/layers/fkeys.svg" alt="Function and media map, with F1 through F12 on the left and playback, volume and display keys on the right.">
+</picture>
 
 <details>
 <summary>Adjust and Gamepad · QMK only</summary>
 
 Hold Super and a Return thumb for Adjust. Tap `J` for Gamepad or `K` to switch bases. `W` toggles debugging, `E` reboots, `R` **clears EEPROM settings** and `T` enters the bootloader. Both halves store their handedness in EEPROM. If you clear it, restore the affected half with the matching left/right flash target.
 
-![Adjust layer with firmware controls on the left and Gamepad and base toggles on J and K.](../../docs/layers/adjust.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/adjust.svg">
+  <img src="../../docs/layers/adjust.svg" alt="Adjust layer with firmware controls on the left and Gamepad and base toggles on J and K.">
+</picture>
 
 In Gamepad, `E S D F` become **↑ ← ↓ →**. The left thumbs become plain **Alt, Space and Return**. To leave, **hold the left Alt thumb, hold the right Return thumb, tap J**, then release both.
 
-![Gamepad with arrows on E, S, D and F, and plain keys on the left thumbs.](../../docs/layers/gamepad.svg)
+<picture>
+  <source media="(max-width: 600px)" srcset="../../docs/layers/mobile/gamepad.svg">
+  <img src="../../docs/layers/gamepad.svg" alt="Gamepad with arrows on E, S, D and F, and plain keys on the left thumbs.">
+</picture>
 
 </details>
 
@@ -169,7 +208,9 @@ Connect the half you want to flash and use its **left** or **right** command. Wh
 
 ### Sources and diagrams
 
-The split positions come from [wrappers.h](wrappers.h), chord handling from [process_records.c](process_records.c), and Caps Word from [eduarbo.c](eduarbo.c). Run `python3 docs/draw_layout.py` at the repository root to redraw the seven layer maps with pinned keymap-drawer. The script also supplies the U.S. Shift legends and Super's host shortcuts.
+The split positions come from [wrappers.h](wrappers.h), chord handling from [process_records.c](process_records.c), and Caps Word from [eduarbo.c](eduarbo.c). Run `python3 docs/draw_layout.py` to redraw all seven layers from the Piantor geometry, including the stacked views for phones. The script supplies the U.S. Shift legends and Super's host shortcuts.
+
+To redraw both GIF tutorials, install `rsvg-convert` (librsvg) and ImageMagick 7, then run `python3 docs/draw_gestures.py --macbook-svg /path/to/dotfiles/macos/karabiner/docs/macbook.svg`. Each frame lights the matching physical key on the corresponding board map.
 
 The [Karabiner guide](https://github.com/eduarbo/dotfiles/tree/main/macos/karabiner) covers the printed MacBook keys, profiles and app-specific rules. Its [parity tests](https://github.com/eduarbo/dotfiles/blob/main/macos/karabiner/config/qmkParity.test.ts) compare the thirty finger positions on Base, Symbols and F-Keys with this userspace.
 
